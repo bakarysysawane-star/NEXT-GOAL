@@ -15,17 +15,10 @@ export default function Home() {
         background: 'radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.12) 0%, transparent 70%)',
         position: 'relative',
       }}>
-        {/* Big logo */}
-    <div style={{ marginBottom: '2rem' }}>
-  <span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
-    NEXT GOAL
-  </span>
-</div>
-<span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
-  NEXT GOAL
-</span>
-  style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1rem' }} 
-/>
+        <div style={{ marginBottom: '2rem' }}>
+          <span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
+            NEXT GOAL
+          </span>
         </div>
 
         <h1 style={{
@@ -49,7 +42,6 @@ export default function Home() {
           La plateforme qui connecte les joueurs amateurs de toute la <strong style={{ color: 'var(--text)' }}>France</strong> avec les recruteurs et agents à la recherche des pépites de demain.
         </p>
 
-        {/* CTA buttons */}
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '4rem' }}>
           <Link to="/inscription/joueur" className="btn btn-primary" style={{ padding: '14px 32px', fontSize: '15px' }}>
             ⚽ Je suis joueur
@@ -59,7 +51,6 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Stats */}
         <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {[
             { num: '100%', label: 'Gratuit' },
@@ -73,7 +64,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Scroll hint */}
         <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)' }}>
           <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '8px' }}>Découvrir</div>
           <div style={{ width: '1px', height: '40px', background: 'var(--border)', margin: '0 auto' }} />
