@@ -65,40 +65,35 @@ export default function Players({ user }) {
     return true
   })
 
+  // Recherche IA via Supabase Edge Function (pour éviter CORS)
   const handleAiSearch = async () => {
     if (!aiSearch.trim()) return
     setAiLoading(true)
     setAiResults(null)
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: `Tu es un assistant de recrutement football. Voici la demande du recruteur : "${aiSearch}"
-            
-Voici la liste des joueurs disponibles (JSON):
-${JSON.stringify(players.map(p => ({
-  id: p.id, nom: p.nom, prenom: p.prenom, poste: p.poste_principal,
-  region: p.region, age: p.age, niveau: p.niveau_championnat,
-  categorie: p.categorie, buts: p.buts, matchs: p.matchs_joues
-})), null, 2)}
+      // On fait le matching côté client avec les données disponibles
+      const playersData = players.map(p => ({
+        id: p.id, nom: p.nom, prenom: p.prenom, poste: p.poste_principal,
+        region: p.region, age: p.age, niveau: p.niveau_championnat,
+        categorie: p.categorie, buts: p.buts, matchs: p.matchs_joues,
+        pied: p.pied_fort
+      }))
 
-Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
-- "ids": tableau des ids des 3 meilleurs joueurs correspondant à la demande
-- "explication": courte explication (max 80 mots) de pourquoi ces joueurs correspondent`
-          }]
-        })
+      const { data, error } = await supabase.functions.invoke('ai-search', {
+        body: { query: aiSearch, players: playersData }
       })
-      const data = await response.json()
-      const text = data.content?.[0]?.text || ''
-      const result = JSON.parse(text)
-      setAiResults(result)
+
+      if (error) throw error
+      setAiResults(data)
     } catch (err) {
-      setAiResults({ error: 'Erreur lors de la recherche IA. Réessaie.' })
+      // Fallback : recherche textuelle simple
+      const q = aiSearch.toLowerCase()
+      const keywords = q.split(' ')
+      const matched = players.filter(p => {
+        const text = `${p.prenom} ${p.nom} ${p.poste_principal} ${p.region} ${p.categorie} ${p.niveau_championnat}`.toLowerCase()
+        return keywords.some(k => text.includes(k))
+      }).slice(0, 4)
+      setAiResults({ ids: matched.map(p => p.id), explication: `Résultats basés sur votre recherche : "${aiSearch}"` })
     } finally {
       setAiLoading(false)
     }
@@ -108,20 +103,14 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
   const displayPlayers = aiResults?.ids ? aiMatchedPlayers : filtered
 
   const selectStyle = {
-    padding: '8px 10px',
-    background: 'var(--bg2)',
-    border: '1px solid var(--border)',
-    borderRadius: '8px',
-    color: 'var(--text2)',
-    fontSize: '13px',
-    cursor: 'pointer',
-    outline: 'none',
+    padding: '8px 10px', background: 'var(--bg2)',
+    border: '1px solid var(--border)', borderRadius: '8px',
+    color: 'var(--text2)', fontSize: '13px', cursor: 'pointer', outline: 'none',
   }
 
   return (
     <div className="page fade-in">
       <div className="container">
-        {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--text)', marginBottom: '4px' }}>
             Annuaire des joueurs
@@ -131,7 +120,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
           </p>
         </div>
 
-        {/* AI Search (recruteurs only) */}
+        {/* AI Search */}
         {isRecruiter && (
           <div className="card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(26,10,46,0.9), rgba(38,33,92,0.5))' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
@@ -142,7 +131,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
                 <textarea
                   value={aiSearch}
                   onChange={e => setAiSearch(e.target.value)}
-                  placeholder='Ex: "Je cherche un attaquant U21 rapide en Île-de-France avec au moins 5 buts cette saison"'
+                  placeholder='Ex: "attaquant U21 rapide en Île-de-France avec 5+ buts"'
                   rows={2}
                   style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', color: 'var(--text)', fontFamily: 'var(--font)', fontSize: '14px', resize: 'none', outline: 'none' }}
                   onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAiSearch())}
@@ -150,7 +139,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
               </div>
               <button className="btn btn-primary" onClick={handleAiSearch} disabled={aiLoading}
                 style={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}>
-                {aiLoading ? '...' : '🔍 Matcher'}
+                {aiLoading ? '...' : '🔍 Chercher'}
               </button>
             </div>
             {aiResults?.explication && (
@@ -162,7 +151,6 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
                 </button>
               </div>
             )}
-            {aiResults?.error && <div className="alert alert-error" style={{ marginTop: '8px' }}>{aiResults.error}</div>}
           </div>
         )}
 
@@ -201,9 +189,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
             </select>
             {Object.values(filters).some(v => v) && (
               <button onClick={() => setFilters({ search: '', poste: '', region: '', categorie: '', niveau: '', pied: '', tranche_age: '' })}
-                className="btn btn-secondary btn-sm">
-                ✕ Effacer
-              </button>
+                className="btn btn-secondary btn-sm">✕ Effacer</button>
             )}
           </div>
           <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text3)' }}>
@@ -213,25 +199,26 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
         </div>
 
         {/* Players grid */}
-        {loading ? (
-          <div className="spinner" />
-        ) : displayPlayers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text2)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-            <p>Aucun joueur trouvé avec ces critères.</p>
-          </div>
-        ) : (
-          <div className="grid-auto">
-            {displayPlayers.map(p => (
-              <PlayerCard
-                key={p.id}
-                player={p}
-                isRecruiter={isRecruiter}
-                onContact={setContactPlayer}
-              />
-            ))}
-          </div>
-        )}
+        {loading ? <div className="spinner" /> :
+          displayPlayers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text2)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+              <p>Aucun joueur trouvé avec ces critères.</p>
+            </div>
+          ) : (
+            <div className="grid-auto">
+              {displayPlayers.map(p => (
+                <PlayerCard
+                  key={p.id}
+                  player={p}
+                  isRecruiter={isRecruiter}
+                  onContact={setContactPlayer}
+                  user={user}
+                />
+              ))}
+            </div>
+          )
+        }
       </div>
 
       {contactPlayer && (
