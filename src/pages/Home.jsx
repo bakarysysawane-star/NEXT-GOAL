@@ -18,8 +18,7 @@ export default function Home() {
         {/* Big logo */}
         <div style={{ marginBottom: '2rem' }}>
           <img 
-  src="/Black White Simple Modern Neon Griddy Bold Technology Pixel Electronics Store Logo (2).png" 
-  alt="Next Goal" 
+ src="/logo.png"
   style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1rem' }} 
 />
         </div>
