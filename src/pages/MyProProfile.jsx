@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import AvatarUpload from '../components/AvatarUpload'
 
 const REGIONS = ['Toute la France','Île-de-France','PACA','Occitanie','Auvergne-Rhône-Alpes',
   'Nouvelle-Aquitaine','Hauts-de-France','Grand Est','Normandie','Bretagne','Pays de la Loire']
@@ -11,10 +12,10 @@ const S = {
   grid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' },
 }
 
-const ROLE_LABELS = { recruiter: 'Recruteur', agent: 'Agent sportif', club: 'Club' }
-const ROLE_COLORS = { recruiter: 'badge-blue', agent: 'badge-amber', club: 'badge-purple' }
-const STATUT_COLORS = { en_attente: 'badge-amber', valide: 'badge-green', refuse: 'badge-pink' }
-const STATUT_LABELS = { en_attente: 'En attente de validation', valide: '✓ Profil validé', refuse: 'Refusé' }
+const ROLE_LABELS = { recruiter:'Recruteur', agent:'Agent sportif', club:'Club' }
+const ROLE_COLORS = { recruiter:'badge-blue', agent:'badge-amber', club:'badge-purple' }
+const STATUT_COLORS = { en_attente:'badge-amber', valide:'badge-green', refuse:'badge-pink' }
+const STATUT_LABELS = { en_attente:'En attente de validation', valide:'✓ Profil validé', refuse:'Refusé' }
 
 export default function MyProProfile({ user }) {
   const [profile, setProfile] = useState(null)
@@ -28,11 +29,7 @@ export default function MyProProfile({ user }) {
   useEffect(() => { fetchProfile() }, [user])
 
   const fetchProfile = async () => {
-    const { data } = await supabase
-      .from('pro_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    const { data } = await supabase.from('pro_profiles').select('*').eq('user_id', user.id).single()
     setProfile(data)
     setForm(data || {})
     setLoading(false)
@@ -40,70 +37,74 @@ export default function MyProProfile({ user }) {
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
+  const handleAvatarUpload = async (photoUrl) => {
+    await supabase.from('pro_profiles').update({ photo_url: photoUrl }).eq('id', profile.id)
+    setProfile(p => ({ ...p, photo_url: photoUrl }))
+    setSuccess('✅ Photo mise à jour !')
+    setTimeout(() => setSuccess(''), 3000)
+  }
+
   const handleSave = async () => {
     setSaving(true); setError(''); setSuccess('')
     try {
-      const { error: err } = await supabase
-        .from('pro_profiles')
-        .update({ ...form, updated_at: new Date().toISOString() })
-        .eq('id', profile.id)
+      const { error: err } = await supabase.from('pro_profiles').update({ ...form, updated_at: new Date().toISOString() }).eq('id', profile.id)
       if (err) throw err
       setProfile({ ...profile, ...form })
       setEditing(false)
-      setSuccess('✅ Profil mis à jour avec succès !')
+      setSuccess('✅ Profil mis à jour !')
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) { setError(err.message) }
     finally { setSaving(false) }
   }
 
   if (loading) return <div className="spinner" />
-
   if (!profile) return (
-    <div className="page fade-in">
-      <div className="container" style={{ textAlign: 'center', padding: '4rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📋</div>
-        <h2 style={{ color: 'var(--text)', marginBottom: '8px' }}>Profil en cours de validation</h2>
-        <p style={{ color: 'var(--text2)', fontSize: '14px' }}>Bakary validera votre profil sous 48h.</p>
-      </div>
-    </div>
+    <div className="page fade-in"><div className="container" style={{ textAlign:'center', padding:'4rem' }}>
+      <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>📋</div>
+      <h2 style={{ color:'var(--text)', marginBottom:'8px' }}>Profil en cours de validation</h2>
+      <p style={{ color:'var(--text2)', fontSize:'14px' }}>Bakary validera votre profil sous 48h.</p>
+    </div></div>
   )
 
   return (
     <div className="page fade-in">
-      <div className="container" style={{ maxWidth: '800px' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="container" style={{ maxWidth:'800px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--text)' }}>Mon profil professionnel</h1>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-              <span className={`badge ${ROLE_COLORS[profile.role_pro] || 'badge-blue'}`}>
-                {ROLE_LABELS[profile.role_pro] || profile.role_pro}
-              </span>
-              <span className={`badge ${STATUT_COLORS[profile.statut] || 'badge-amber'}`}>
-                {STATUT_LABELS[profile.statut] || profile.statut}
-              </span>
+            <h1 style={{ fontSize:'1.5rem', fontWeight:'600', color:'var(--text)' }}>Mon profil professionnel</h1>
+            <div style={{ display:'flex', gap:'8px', marginTop:'8px', flexWrap:'wrap' }}>
+              <span className={`badge ${ROLE_COLORS[profile.role_pro]||'badge-blue'}`}>{ROLE_LABELS[profile.role_pro]||profile.role_pro}</span>
+              <span className={`badge ${STATUT_COLORS[profile.statut]||'badge-amber'}`}>{STATUT_LABELS[profile.statut]||profile.statut}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display:'flex', gap:'10px' }}>
             {!editing ? (
-              <button className="btn btn-primary" onClick={() => setEditing(true)}>✏️ Modifier mon profil</button>
+              <button className="btn btn-primary" onClick={() => setEditing(true)}>✏️ Modifier</button>
             ) : (
               <>
                 <button className="btn btn-secondary" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
-                <button className="btn btn-green" onClick={handleSave} disabled={saving}>
-                  {saving ? 'Sauvegarde...' : '💾 Sauvegarder'}
-                </button>
+                <button className="btn btn-green" onClick={handleSave} disabled={saving}>{saving ? 'Sauvegarde...' : '💾 Sauvegarder'}</button>
               </>
             )}
           </div>
         </div>
 
-        {success && <div className="alert alert-success" style={{ marginBottom: '1rem' }}>{success}</div>}
-        {error && <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{error}</div>}
+        {success && <div className="alert alert-success" style={{ marginBottom:'1rem' }}>{success}</div>}
+        {error && <div className="alert alert-error" style={{ marginBottom:'1rem' }}>{error}</div>}
+
+        {/* Avatar */}
+        <div className="card" style={{ marginBottom:'1rem', display:'flex', alignItems:'center', gap:'2rem', flexWrap:'wrap' }}>
+          <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
+          <div>
+            <h2 style={{ fontSize:'1.2rem', fontWeight:'700', color:'var(--text)' }}>{profile.prenom} {profile.nom}</h2>
+            <p style={{ color:'var(--text2)', fontSize:'14px', marginTop:'4px' }}>{profile.organisation || 'Organisation non renseignée'}</p>
+            <p style={{ color:'var(--text3)', fontSize:'13px', marginTop:'2px' }}>{profile.region_couverte}</p>
+          </div>
+        </div>
 
         {/* Infos personnelles */}
-        <div className="card" style={{ marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text)', marginBottom: '1rem' }}>👤 Informations personnelles</h2>
+        <div className="card" style={{ marginBottom:'1rem' }}>
+          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>👤 Informations personnelles</h2>
           {editing ? (
             <div style={S.grid}>
               <div style={S.fg}><label style={S.label}>Prénom</label><input style={S.input} value={form.prenom||''} onChange={set('prenom')} /></div>
@@ -113,9 +114,7 @@ export default function MyProProfile({ user }) {
             </div>
           ) : (
             <div style={S.grid}>
-              {[['Prénom',profile.prenom],['Nom',profile.nom],
-                ['Email pro',profile.email_pro||'-'],['WhatsApp',profile.whatsapp||'-']
-              ].map(([k,v])=>(
+              {[['Prénom',profile.prenom],['Nom',profile.nom],['Email pro',profile.email_pro||'-'],['WhatsApp',profile.whatsapp||'-']].map(([k,v])=>(
                 <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
                   <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
                   <div style={{ fontWeight:'500', color:'var(--text)' }}>{v}</div>
@@ -126,45 +125,23 @@ export default function MyProProfile({ user }) {
         </div>
 
         {/* Infos professionnelles */}
-        <div className="card" style={{ marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text)', marginBottom: '1rem' }}>🎯 Informations professionnelles</h2>
+        <div className="card" style={{ marginBottom:'1rem' }}>
+          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>🎯 Informations professionnelles</h2>
           {editing ? (
             <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
               <div style={S.grid}>
-                <div style={S.fg}>
-                  <label style={S.label}>Rôle</label>
-                  <select style={S.input} value={form.role_pro||''} onChange={set('role_pro')}>
-                    <option value="recruiter">Recruteur</option>
-                    <option value="agent">Agent sportif</option>
-                    <option value="club">Club</option>
-                  </select>
-                </div>
-                <div style={S.fg}><label style={S.label}>Organisation / Club / Agence</label><input style={S.input} value={form.organisation||''} onChange={set('organisation')} /></div>
-                <div style={S.fg}>
-                  <label style={S.label}>Région couverte</label>
-                  <select style={S.input} value={form.region_couverte||''} onChange={set('region_couverte')}>
-                    {REGIONS.map(r => <option key={r}>{r}</option>)}
-                  </select>
-                </div>
-                <div style={S.fg}><label style={S.label}>Postes recherchés</label><input style={S.input} value={form.postes_recherches||''} onChange={set('postes_recherches')} placeholder="Attaquant, Milieu..." /></div>
-                <div style={S.fg}><label style={S.label}>Niveau ciblé</label><input style={S.input} value={form.niveau_cible||''} onChange={set('niveau_cible')} placeholder="Régional 1, National 3..." /></div>
+                <div style={S.fg}><label style={S.label}>Rôle</label><select style={S.input} value={form.role_pro||''} onChange={set('role_pro')}><option value="recruiter">Recruteur</option><option value="agent">Agent sportif</option><option value="club">Club</option></select></div>
+                <div style={S.fg}><label style={S.label}>Organisation</label><input style={S.input} value={form.organisation||''} onChange={set('organisation')} /></div>
+                <div style={S.fg}><label style={S.label}>Région couverte</label><select style={S.input} value={form.region_couverte||''} onChange={set('region_couverte')}>{REGIONS.map(r=><option key={r}>{r}</option>)}</select></div>
+                <div style={S.fg}><label style={S.label}>Postes recherchés</label><input style={S.input} value={form.postes_recherches||''} onChange={set('postes_recherches')} /></div>
+                <div style={S.fg}><label style={S.label}>Niveau ciblé</label><input style={S.input} value={form.niveau_cible||''} onChange={set('niveau_cible')} /></div>
               </div>
-              <div style={S.fg}>
-                <label style={S.label}>Critères particuliers</label>
-                <textarea style={{ ...S.input, minHeight:'80px', resize:'vertical' }}
-                  value={form.criteres||''} onChange={set('criteres')}
-                  placeholder="Décrivez vos critères de recherche..." />
-              </div>
+              <div style={S.fg}><label style={S.label}>Critères particuliers</label><textarea style={{ ...S.input, minHeight:'80px', resize:'vertical' }} value={form.criteres||''} onChange={set('criteres')} /></div>
             </div>
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
               <div style={S.grid}>
-                {[
-                  ['Organisation',profile.organisation||'-'],
-                  ['Région couverte',profile.region_couverte||'-'],
-                  ['Postes recherchés',profile.postes_recherches||'-'],
-                  ['Niveau ciblé',profile.niveau_cible||'-'],
-                ].map(([k,v])=>(
+                {[['Organisation',profile.organisation||'-'],['Région couverte',profile.region_couverte||'-'],['Postes recherchés',profile.postes_recherches||'-'],['Niveau ciblé',profile.niveau_cible||'-']].map(([k,v])=>(
                   <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
                     <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
                     <div style={{ fontWeight:'500', color:'var(--text)', fontSize:'14px' }}>{v}</div>
