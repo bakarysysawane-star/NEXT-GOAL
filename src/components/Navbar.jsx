@@ -58,8 +58,7 @@ export default function Navbar({ user }) {
         {/* Logo */}
         <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
         <img 
-  src="/Black White Simple Modern Neon Griddy Bold Technology Pixel Electronics Store Logo (2).png" 
-  alt="Next Goal" 
+src="/logo.png"
   style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
 />
         </Link>
