@@ -5,7 +5,6 @@ import { signOut } from '../lib/supabase'
 export default function Navbar({ user }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [menuOpen, setMenuOpen] = useState(false)
   const role = user?.profile?.role
 
   const handleSignOut = async () => {
@@ -54,16 +53,11 @@ export default function Navbar({ user }) {
       height: '64px',
     }}>
       <div className="container" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        
-        {/* Logo */}
-       <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
-  <span className="logo-text">NEXT GOAL</span>
-<span className="logo-text">NEXT GOAL</span>
-  style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
-/>
+
+        <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
+          <span className="logo-text">NEXT GOAL</span>
         </Link>
 
-        {/* Desktop Nav */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {links.map(link => (
             <Link
