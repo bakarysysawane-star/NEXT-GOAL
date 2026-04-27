@@ -35,30 +35,73 @@ export default function SignupJoueur() {
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
-  const handleSubmit = async () => {
-    if (form.password !== form.confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return }
-    setLoading(true); setError('')
-    try {
-      const data = await signUp(form.email, form.password, 'player', `${form.prenom} ${form.nom}`)
-      if (data.user) {
-        const age = form.date_naissance ? Math.floor((Date.now() - new Date(form.date_naissance)) / 31557600000) : null
-        await supabase.from('player_profiles').insert({
-          user_id: data.user.id, nom: form.nom, prenom: form.prenom,
-          date_naissance: form.date_naissance || null, age, nationalite: form.nationalite,
-          ville: form.ville, region: form.region, taille: form.taille, poids: form.poids,
-          pied_fort: form.pied_fort, poste_principal: form.poste_principal, poste_secondaire: form.poste_secondaire,
-          club_actuel: form.club_actuel, categorie: form.categorie, niveau_championnat: form.niveau_championnat,
-          matchs_joues: parseInt(form.matchs_joues)||0, buts: parseInt(form.buts)||0,
-          passes_decisives: parseInt(form.passes_decisives)||0, clean_sheets: parseInt(form.clean_sheets)||0,
-          video_highlights: form.video_highlights, video_match: form.video_match,
-          objectif: form.objectif, ouvert_opportunites: form.ouvert_opportunites,
-          whatsapp: form.whatsapp, instagram: form.instagram, tiktok: form.tiktok, statut:'en_attente',
-        })
-        navigate('/inscription/succes')
-      }
-    } catch (err) { setError(err.message) }
-    finally { setLoading(false) }
+const handleSubmit = async () => {
+  if (form.password !== form.confirmPassword) {
+    setError('Les mots de passe ne correspondent pas.')
+    return
   }
+  setLoading(true)
+  setError('')
+  try {
+    // 1. Créer le compte
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: { data: { role: 'player', full_name: `${form.prenom} ${form.nom}` } }
+    })
+    if (signUpError) throw signUpError
+
+    // 2. Se connecter immédiatement
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: form.email,
+      password: form.password
+    })
+    if (signInError) throw signInError
+
+    // 3. Attendre que la session soit active
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // 4. Insérer le profil joueur
+    const age = form.date_naissance
+      ? Math.floor((Date.now() - new Date(form.date_naissance)) / 31557600000)
+      : null
+
+    const { error: insertError } = await supabase.from('player_profiles').insert({
+      user_id: data.user.id,
+      nom: form.nom, prenom: form.prenom,
+      date_naissance: form.date_naissance || null,
+      age, nationalite: form.nationalite,
+      ville: form.ville, region: form.region,
+      taille: form.taille, poids: form.poids,
+      pied_fort: form.pied_fort,
+      poste_principal: form.poste_principal,
+      poste_secondaire: form.poste_secondaire,
+      club_actuel: form.club_actuel,
+      categorie: form.categorie,
+      niveau_championnat: form.niveau_championnat,
+      matchs_joues: parseInt(form.matchs_joues) || 0,
+      buts: parseInt(form.buts) || 0,
+      passes_decisives: parseInt(form.passes_decisives) || 0,
+      clean_sheets: parseInt(form.clean_sheets) || 0,
+      video_highlights: form.video_highlights,
+      video_match: form.video_match,
+      objectif: form.objectif,
+      ouvert_opportunites: form.ouvert_opportunites,
+      whatsapp: form.whatsapp,
+      instagram: form.instagram,
+      tiktok: form.tiktok,
+      statut: 'en_attente',
+    })
+
+    if (insertError) throw insertError
+    navigate('/inscription/succes')
+
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div style={{ minHeight:'100vh', padding:'2rem 1rem', background:'radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.06) 0%, transparent 60%)' }}>
