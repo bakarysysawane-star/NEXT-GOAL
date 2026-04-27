@@ -32,19 +32,21 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getUser().then(u => { setUser(u); setLoading(false) })
+  getUser()
+    .then(u => { setUser(u); setLoading(false) })
+    .catch(() => setLoading(false))
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const u = await getUser()
-        setUser(u)
-      } else {
-        setUser(null)
-      }
-    })
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      getUser().then(u => { setUser(u); setLoading(false) })
+    } else {
+      setUser(null)
+      setLoading(false)
+    }
+  })
 
-    return () => subscription.unsubscribe()
-  }, [])
+  return () => subscription.unsubscribe()
+}, [])
 
   const showNav = user !== null
 
