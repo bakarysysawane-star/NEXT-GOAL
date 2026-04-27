@@ -17,9 +17,11 @@ export default function Home() {
       }}>
         {/* Big logo */}
         <div style={{ marginBottom: '2rem' }}>
-          <span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
-            NEXT GOAL
-          </span>
+          <img 
+  src="/Black White Simple Modern Neon Griddy Bold Technology Pixel Electronics Store Logo (2).png" 
+  alt="Next Goal" 
+  style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1rem' }} 
+/>
         </div>
 
         <h1 style={{
