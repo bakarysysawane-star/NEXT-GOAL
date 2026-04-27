@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { signOut } from '../lib/supabase'
 
@@ -20,18 +19,21 @@ export default function Navbar({ user }) {
     ],
     recruiter: [
       { to: '/joueurs', label: 'Joueurs' },
+      { to: '/favoris', label: '⭐ Favoris' },
+      { to: '/recommandations', label: '🤖 Recommandations' },
       { to: '/messages', label: 'Messages' },
-      { to: '/mon-profil-pro', label: 'Mon profil' },
     ],
     agent: [
       { to: '/joueurs', label: 'Joueurs' },
+      { to: '/favoris', label: '⭐ Favoris' },
+      { to: '/recommandations', label: '🤖 Recommandations' },
       { to: '/messages', label: 'Messages' },
-      { to: '/mon-profil-pro', label: 'Mon profil' },
     ],
     club: [
       { to: '/joueurs', label: 'Joueurs' },
+      { to: '/favoris', label: '⭐ Favoris' },
+      { to: '/recommandations', label: '🤖 Recommandations' },
       { to: '/messages', label: 'Messages' },
-      { to: '/mon-profil-pro', label: 'Mon profil' },
     ],
     admin: [
       { to: '/joueurs', label: 'Joueurs' },
@@ -58,20 +60,21 @@ export default function Navbar({ user }) {
           <span className="logo-text">NEXT GOAL</span>
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
           {links.map(link => (
             <Link
               key={link.to}
               to={link.to}
               style={{
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: 'var(--radius-sm)',
                 textDecoration: 'none',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 color: location.pathname === link.to ? 'var(--accent)' : 'var(--text2)',
                 background: location.pathname === link.to ? 'rgba(192,132,252,0.1)' : 'transparent',
                 transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
               }}
             >
               {link.label}
