@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
 export const signUp = async (email, password, role, fullName) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -11,22 +13,15 @@ export const signUp = async (email, password, role, fullName) => {
   })
   if (error) throw error
 
-  // Attendre que la session soit active
   if (data.user) {
-    // Créer le profil avec un délai pour laisser le trigger s'exécuter
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: data.user.id,
-        role,
-        full_name: fullName
-      })
-    
-    if (profileError) console.error('Profile error:', profileError)
+    await supabase.from('profiles').upsert({
+      id: data.user.id,
+      role,
+      full_name: fullName
+    })
   }
-  
+
   return data
 }
 
