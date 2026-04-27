@@ -13,6 +13,8 @@ import PlayerDetail from './pages/PlayerDetail'
 import MyProfile from './pages/MyProfile'
 import Messages from './pages/Messages'
 import Admin from './pages/Admin'
+import Favorites from './pages/Favorites'
+import Recommendations from './pages/Recommendations'
 
 function RequireAuth({ user, loading, children, roles }) {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div className="spinner" /></div>
@@ -32,21 +34,21 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-  getUser()
-    .then(u => { setUser(u); setLoading(false) })
-    .catch(() => setLoading(false))
+    getUser()
+      .then(u => { setUser(u); setLoading(false) })
+      .catch(() => setLoading(false))
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user) {
-      getUser().then(u => { setUser(u); setLoading(false) })
-    } else {
-      setUser(null)
-      setLoading(false)
-    }
-  })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        getUser().then(u => { setUser(u); setLoading(false) })
+      } else {
+        setUser(null)
+        setLoading(false)
+      }
+    })
 
-  return () => subscription.unsubscribe()
-}, [])
+    return () => subscription.unsubscribe()
+  }, [])
 
   const showNav = user !== null
 
@@ -55,63 +57,27 @@ export default function App() {
       {showNav && <Navbar user={user} />}
       <Routes>
         {/* Public */}
-        <Route path="/" element={
-          <RequireGuest user={user} loading={loading}>
-            <Home />
-          </RequireGuest>
-        } />
-        <Route path="/connexion" element={
-          <RequireGuest user={user} loading={loading}>
-            <Login setUser={setUser} />
-          </RequireGuest>
-        } />
-        <Route path="/inscription" element={
-          <RequireGuest user={user} loading={loading}>
-            <SignupChoice />
-          </RequireGuest>
-        } />
-        <Route path="/inscription/joueur" element={
-          <RequireGuest user={user} loading={loading}>
-            <SignupJoueur />
-          </RequireGuest>
-        } />
-        <Route path="/inscription/pro" element={
-          <RequireGuest user={user} loading={loading}>
-            <SignupPro />
-          </RequireGuest>
-        } />
+        <Route path="/" element={<RequireGuest user={user} loading={loading}><Home /></RequireGuest>} />
+        <Route path="/connexion" element={<RequireGuest user={user} loading={loading}><Login setUser={setUser} /></RequireGuest>} />
+        <Route path="/inscription" element={<RequireGuest user={user} loading={loading}><SignupChoice /></RequireGuest>} />
+        <Route path="/inscription/joueur" element={<RequireGuest user={user} loading={loading}><SignupJoueur /></RequireGuest>} />
+        <Route path="/inscription/pro" element={<RequireGuest user={user} loading={loading}><SignupPro /></RequireGuest>} />
         <Route path="/inscription/succes" element={<SignupSuccess />} />
 
         {/* Protected — all logged in */}
-        <Route path="/joueurs" element={
-          <RequireAuth user={user} loading={loading}>
-            <Players user={user} />
-          </RequireAuth>
-        } />
-        <Route path="/joueurs/:id" element={
-          <RequireAuth user={user} loading={loading}>
-            <PlayerDetail user={user} />
-          </RequireAuth>
-        } />
-        <Route path="/messages" element={
-          <RequireAuth user={user} loading={loading}>
-            <Messages user={user} />
-          </RequireAuth>
-        } />
+        <Route path="/joueurs" element={<RequireAuth user={user} loading={loading}><Players user={user} /></RequireAuth>} />
+        <Route path="/joueurs/:id" element={<RequireAuth user={user} loading={loading}><PlayerDetail user={user} /></RequireAuth>} />
+        <Route path="/messages" element={<RequireAuth user={user} loading={loading}><Messages user={user} /></RequireAuth>} />
 
         {/* Player only */}
-        <Route path="/mon-profil" element={
-          <RequireAuth user={user} loading={loading} roles={['player', 'admin']}>
-            <MyProfile user={user} />
-          </RequireAuth>
-        } />
+        <Route path="/mon-profil" element={<RequireAuth user={user} loading={loading} roles={['player', 'admin']}><MyProfile user={user} /></RequireAuth>} />
+
+        {/* Pro only */}
+        <Route path="/favoris" element={<RequireAuth user={user} loading={loading} roles={['recruiter', 'agent', 'club', 'admin']}><Favorites user={user} /></RequireAuth>} />
+        <Route path="/recommandations" element={<RequireAuth user={user} loading={loading} roles={['recruiter', 'agent', 'club', 'admin']}><Recommendations user={user} /></RequireAuth>} />
 
         {/* Admin only */}
-        <Route path="/admin" element={
-          <RequireAuth user={user} loading={loading} roles={['admin']}>
-            <Admin user={user} />
-          </RequireAuth>
-        } />
+        <Route path="/admin" element={<RequireAuth user={user} loading={loading} roles={['admin']}><Admin user={user} /></RequireAuth>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to={user ? '/joueurs' : '/'} replace />} />
