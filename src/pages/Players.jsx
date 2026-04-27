@@ -8,7 +8,14 @@ const POSTES = ['Gardien de but','Défenseur central','Latéral droit','Latéral
 const REGIONS = ['Île-de-France','PACA','Occitanie','Auvergne-Rhône-Alpes','Nouvelle-Aquitaine',
   'Hauts-de-France','Grand Est','Normandie','Bretagne','Pays de la Loire']
 const CATEGORIES = ['U17','U18','U19','U21','Senior','Vétéran']
-const NIVEAUX = ['National 3','Régional 1','Régional 2','Régional 3','Départemental 1','Départemental 2']
+const NIVEAUX = ['National 1','National 2','National 3','Régional 1','Régional 2','Régional 3','Départemental 1','Départemental 2','Loisir']
+const TRANCHES_AGE = [
+  { label: 'Moins de 18 ans', min: 0, max: 17 },
+  { label: '18 - 21 ans', min: 18, max: 21 },
+  { label: '22 - 25 ans', min: 22, max: 25 },
+  { label: '26 - 30 ans', min: 26, max: 30 },
+  { label: 'Plus de 30 ans', min: 31, max: 99 },
+]
 
 export default function Players({ user }) {
   const [players, setPlayers] = useState([])
@@ -18,7 +25,7 @@ export default function Players({ user }) {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResults, setAiResults] = useState(null)
   const [filters, setFilters] = useState({
-    search: '', poste: '', region: '', categorie: '', niveau: '', pied: ''
+    search: '', poste: '', region: '', categorie: '', niveau: '', pied: '', tranche_age: ''
   })
 
   const role = user?.profile?.role
@@ -49,6 +56,12 @@ export default function Players({ user }) {
     if (filters.categorie && p.categorie !== filters.categorie) return false
     if (filters.niveau && p.niveau_championnat !== filters.niveau) return false
     if (filters.pied && p.pied_fort !== filters.pied) return false
+    if (filters.tranche_age) {
+      const tranche = TRANCHES_AGE.find(t => t.label === filters.tranche_age)
+      if (tranche && p.age !== null) {
+        if (p.age < tranche.min || p.age > tranche.max) return false
+      }
+    }
     return true
   })
 
@@ -91,11 +104,19 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
     }
   }
 
-  const aiMatchedPlayers = aiResults?.ids
-    ? players.filter(p => aiResults.ids.includes(p.id))
-    : []
-
+  const aiMatchedPlayers = aiResults?.ids ? players.filter(p => aiResults.ids.includes(p.id)) : []
   const displayPlayers = aiResults?.ids ? aiMatchedPlayers : filtered
+
+  const selectStyle = {
+    padding: '8px 10px',
+    background: 'var(--bg2)',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    color: 'var(--text2)',
+    fontSize: '13px',
+    cursor: 'pointer',
+    outline: 'none',
+  }
 
   return (
     <div className="page fade-in">
@@ -141,9 +162,7 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
                 </button>
               </div>
             )}
-            {aiResults?.error && (
-              <div className="alert alert-error" style={{ marginTop: '8px' }}>{aiResults.error}</div>
-            )}
+            {aiResults?.error && <div className="alert alert-error" style={{ marginTop: '8px' }}>{aiResults.error}</div>}
           </div>
         )}
 
@@ -156,25 +175,32 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
               onChange={e => setFilter('search', e.target.value)}
               style={{ flex: 2, minWidth: '180px', padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px', outline: 'none' }}
             />
-            {[
-              { k: 'poste', opts: POSTES, label: 'Poste' },
-              { k: 'region', opts: REGIONS, label: 'Région' },
-              { k: 'categorie', opts: CATEGORIES, label: 'Catégorie' },
-              { k: 'niveau', opts: NIVEAUX, label: 'Niveau' },
-            ].map(({ k, opts, label }) => (
-              <select key={k} value={filters[k]} onChange={e => setFilter(k, e.target.value)}
-                style={{ padding: '8px 10px', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '8px', color: filters[k] ? 'var(--text)' : 'var(--text3)', fontSize: '13px', cursor: 'pointer', outline: 'none' }}>
-                <option value="">{label}</option>
-                {opts.map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
-            ))}
-            <select value={filters.pied} onChange={e => setFilter('pied', e.target.value)}
-              style={{ padding: '8px 10px', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text3)', fontSize: '13px', cursor: 'pointer', outline: 'none' }}>
+            <select style={selectStyle} value={filters.poste} onChange={e => setFilter('poste', e.target.value)}>
+              <option value="">Poste</option>
+              {POSTES.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+            <select style={selectStyle} value={filters.region} onChange={e => setFilter('region', e.target.value)}>
+              <option value="">Région</option>
+              {REGIONS.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+            <select style={selectStyle} value={filters.categorie} onChange={e => setFilter('categorie', e.target.value)}>
+              <option value="">Catégorie</option>
+              {CATEGORIES.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+            <select style={selectStyle} value={filters.niveau} onChange={e => setFilter('niveau', e.target.value)}>
+              <option value="">Niveau</option>
+              {NIVEAUX.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+            <select style={selectStyle} value={filters.pied} onChange={e => setFilter('pied', e.target.value)}>
               <option value="">Pied</option>
               <option>Droit</option><option>Gauche</option><option>Les deux</option>
             </select>
+            <select style={selectStyle} value={filters.tranche_age} onChange={e => setFilter('tranche_age', e.target.value)}>
+              <option value="">Âge</option>
+              {TRANCHES_AGE.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}
+            </select>
             {Object.values(filters).some(v => v) && (
-              <button onClick={() => setFilters({ search: '', poste: '', region: '', categorie: '', niveau: '', pied: '' })}
+              <button onClick={() => setFilters({ search: '', poste: '', region: '', categorie: '', niveau: '', pied: '', tranche_age: '' })}
                 className="btn btn-secondary btn-sm">
                 ✕ Effacer
               </button>
@@ -208,13 +234,8 @@ Réponds UNIQUEMENT avec un JSON valide (sans backticks ni markdown) contenant:
         )}
       </div>
 
-      {/* Contact Modal */}
       {contactPlayer && (
-        <ContactModal
-          player={contactPlayer}
-          user={user}
-          onClose={() => setContactPlayer(null)}
-        />
+        <ContactModal player={contactPlayer} user={user} onClose={() => setContactPlayer(null)} />
       )}
     </div>
   )
