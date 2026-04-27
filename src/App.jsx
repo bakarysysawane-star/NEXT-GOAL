@@ -15,6 +15,7 @@ import Messages from './pages/Messages'
 import Admin from './pages/Admin'
 import Favorites from './pages/Favorites'
 import Recommendations from './pages/Recommendations'
+import MyProProfile from './pages/MyProProfile'
 
 function RequireAuth({ user, loading, children, roles }) {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div className="spinner" /></div>
@@ -75,6 +76,11 @@ export default function App() {
         {/* Pro only */}
         <Route path="/favoris" element={<RequireAuth user={user} loading={loading} roles={['recruiter', 'agent', 'club', 'admin']}><Favorites user={user} /></RequireAuth>} />
         <Route path="/recommandations" element={<RequireAuth user={user} loading={loading} roles={['recruiter', 'agent', 'club', 'admin']}><Recommendations user={user} /></RequireAuth>} />
+        <Route path="/mon-profil-pro" element={
+  <RequireAuth user={user} loading={loading} roles={['recruiter','agent','club']}>
+    <MyProProfile user={user} />
+  </RequireAuth>
+} />
 
         {/* Admin only */}
         <Route path="/admin" element={<RequireAuth user={user} loading={loading} roles={['admin']}><Admin user={user} /></RequireAuth>} />
