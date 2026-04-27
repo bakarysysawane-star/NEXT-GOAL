@@ -18,7 +18,9 @@ export default function Home() {
         {/* Big logo */}
         <div style={{ marginBottom: '2rem' }}>
           <img 
- src="/logo.png"
+<span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
+  NEXT GOAL
+</span>
   style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1rem' }} 
 />
         </div>
