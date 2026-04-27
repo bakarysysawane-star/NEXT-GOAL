@@ -56,8 +56,8 @@ export default function Navbar({ user }) {
       <div className="container" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         
         {/* Logo */}
-        <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
-        <img 
+       <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
+  <span className="logo-text">NEXT GOAL</span>
 <span className="logo-text">NEXT GOAL</span>
   style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
 />
