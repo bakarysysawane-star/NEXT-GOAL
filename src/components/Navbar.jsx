@@ -58,7 +58,7 @@ export default function Navbar({ user }) {
         {/* Logo */}
         <Link to={user ? '/joueurs' : '/'} style={{ textDecoration: 'none' }}>
         <img 
-src="/logo.png"
+<span className="logo-text">NEXT GOAL</span>
   style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
 />
         </Link>
