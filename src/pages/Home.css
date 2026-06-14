@@ -29,6 +29,9 @@
   border-left: 2px solid #B87FFF; padding-left: 16px;
 }
 .ngl-hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.ngl-hero-login { margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); }
+.ngl-hero-login a { color: #B87FFF; font-weight: 700; text-decoration: none; }
+.ngl-hero-login a:hover { text-decoration: underline; }
 .ngl-btn-main {
   background: #fff; border: 2px solid #fff; color: #080808;
   padding: 16px 36px; border-radius: 4px;
