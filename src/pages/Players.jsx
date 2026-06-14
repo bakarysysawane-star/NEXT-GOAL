@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import PlayerCard from '../components/PlayerCard'
 import ContactModal from '../components/ContactModal'
+import './Players.css'
 
 const POSTES = ['Gardien de but','Défenseur central','Latéral droit','Latéral gauche',
   'Milieu défensif','Milieu central','Milieu offensif','Ailier droit','Ailier gauche','Attaquant']
@@ -65,13 +66,11 @@ export default function Players({ user }) {
     return true
   })
 
-  // Recherche IA via Supabase Edge Function (pour éviter CORS)
   const handleAiSearch = async () => {
     if (!aiSearch.trim()) return
     setAiLoading(true)
     setAiResults(null)
     try {
-      // On fait le matching côté client avec les données disponibles
       const playersData = players.map(p => ({
         id: p.id, nom: p.nom, prenom: p.prenom, poste: p.poste_principal,
         region: p.region, age: p.age, niveau: p.niveau_championnat,
@@ -86,7 +85,6 @@ export default function Players({ user }) {
       if (error) throw error
       setAiResults(data)
     } catch (err) {
-      // Fallback : recherche textuelle simple
       const q = aiSearch.toLowerCase()
       const keywords = q.split(' ')
       const matched = players.filter(p => {
@@ -101,120 +99,82 @@ export default function Players({ user }) {
 
   const aiMatchedPlayers = aiResults?.ids ? players.filter(p => aiResults.ids.includes(p.id)) : []
   const displayPlayers = aiResults?.ids ? aiMatchedPlayers : filtered
-
-  const selectStyle = {
-    padding: '8px 10px', background: 'var(--bg2)',
-    border: '1px solid var(--border)', borderRadius: '8px',
-    color: 'var(--text2)', fontSize: '13px', cursor: 'pointer', outline: 'none',
-  }
+  const hasActiveFilters = Object.values(filters).some(v => v)
 
   return (
-    <div className="page fade-in">
-      <div className="container">
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--text)', marginBottom: '4px' }}>
-            Annuaire des joueurs
-          </h1>
-          <p style={{ color: 'var(--text2)', fontSize: '14px' }}>
-            {players.length} profils publiés · Filtrez et trouvez vos futures recrues
-          </p>
-        </div>
+    <div className="nga fade-in">
+      {/* HEADER */}
+      <div className="nga-header">
+        <div className="nga-eyebrow">Annuaire</div>
+        <div className="nga-title">Trouve ton prochain talent</div>
+        <div className="nga-sub">"{players.length} profils prêts à être repérés. À toi de jouer."</div>
 
-        {/* AI Search */}
+        {/* AI SEARCH */}
         {isRecruiter && (
-          <div className="card" style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, rgba(26,10,46,0.9), rgba(38,33,92,0.5))' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: '600', marginBottom: '6px', letterSpacing: '1px' }}>
-                  ✨ RECHERCHE IA
-                </div>
-                <textarea
-                  value={aiSearch}
-                  onChange={e => setAiSearch(e.target.value)}
-                  placeholder='Ex: "attaquant U21 rapide en Île-de-France avec 5+ buts"'
-                  rows={2}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', color: 'var(--text)', fontFamily: 'var(--font)', fontSize: '14px', resize: 'none', outline: 'none' }}
-                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAiSearch())}
-                />
-              </div>
-              <button className="btn btn-primary" onClick={handleAiSearch} disabled={aiLoading}
-                style={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}>
-                {aiLoading ? '...' : '🔍 Chercher'}
+          <>
+            <div className="nga-ai">
+              <span className="nga-ai-badge">IA</span>
+              <textarea
+                className="nga-ai-input"
+                value={aiSearch}
+                onChange={e => setAiSearch(e.target.value)}
+                placeholder='Ex : attaquant U21 rapide en Île-de-France avec 5+ buts...'
+                rows={1}
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAiSearch())}
+              />
+              <button className="nga-ai-btn" onClick={handleAiSearch} disabled={aiLoading}>
+                {aiLoading ? '...' : 'Rechercher'}
               </button>
             </div>
             {aiResults?.explication && (
-              <div style={{ marginTop: '10px', padding: '10px', background: 'rgba(192,132,252,0.1)', borderRadius: '8px', fontSize: '13px', color: 'var(--text2)' }}>
-                🤖 {aiResults.explication}
-                <button style={{ marginLeft: '10px', background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '12px' }}
-                  onClick={() => setAiResults(null)}>
-                  Voir tous les joueurs
-                </button>
+              <div className="nga-ai-result">
+                {aiResults.explication}
+                <button onClick={() => setAiResults(null)}>Voir tous les joueurs</button>
               </div>
             )}
-          </div>
+          </>
         )}
 
-        {/* Filters */}
-        <div className="card" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              placeholder="🔍 Rechercher..."
-              value={filters.search}
-              onChange={e => setFilter('search', e.target.value)}
-              style={{ flex: 2, minWidth: '180px', padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px', outline: 'none' }}
-            />
-            <select style={selectStyle} value={filters.poste} onChange={e => setFilter('poste', e.target.value)}>
-              <option value="">Poste</option>
-              {POSTES.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <select style={selectStyle} value={filters.region} onChange={e => setFilter('region', e.target.value)}>
-              <option value="">Région</option>
-              {REGIONS.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <select style={selectStyle} value={filters.categorie} onChange={e => setFilter('categorie', e.target.value)}>
-              <option value="">Catégorie</option>
-              {CATEGORIES.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <select style={selectStyle} value={filters.niveau} onChange={e => setFilter('niveau', e.target.value)}>
-              <option value="">Niveau</option>
-              {NIVEAUX.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <select style={selectStyle} value={filters.pied} onChange={e => setFilter('pied', e.target.value)}>
-              <option value="">Pied</option>
-              <option>Droit</option><option>Gauche</option><option>Les deux</option>
-            </select>
-            <select style={selectStyle} value={filters.tranche_age} onChange={e => setFilter('tranche_age', e.target.value)}>
-              <option value="">Âge</option>
-              {TRANCHES_AGE.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}
-            </select>
-            {Object.values(filters).some(v => v) && (
-              <button onClick={() => setFilters({ search: '', poste: '', region: '', categorie: '', niveau: '', pied: '', tranche_age: '' })}
-                className="btn btn-secondary btn-sm">✕ Effacer</button>
-            )}
-          </div>
-          <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text3)' }}>
-            {displayPlayers.length} joueur{displayPlayers.length > 1 ? 's' : ''} trouvé{displayPlayers.length > 1 ? 's' : ''}
-            {aiResults?.ids && <span style={{ color: 'var(--accent)', marginLeft: '8px' }}>· Résultats IA</span>}
-          </div>
+        {/* FILTERS */}
+        <div className="nga-filters">
+          <input className="nga-search-input" placeholder="Rechercher un nom, un club..." value={filters.search} onChange={e => setFilter('search', e.target.value)} />
+          <select className="nga-select" value={filters.poste} onChange={e => setFilter('poste', e.target.value)}>
+            <option value="">Tous postes</option>{POSTES.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className="nga-select" value={filters.region} onChange={e => setFilter('region', e.target.value)}>
+            <option value="">Toutes régions</option>{REGIONS.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className="nga-select" value={filters.categorie} onChange={e => setFilter('categorie', e.target.value)}>
+            <option value="">Catégorie</option>{CATEGORIES.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className="nga-select" value={filters.niveau} onChange={e => setFilter('niveau', e.target.value)}>
+            <option value="">Niveau</option>{NIVEAUX.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className="nga-select" value={filters.pied} onChange={e => setFilter('pied', e.target.value)}>
+            <option value="">Pied</option><option>Droit</option><option>Gauche</option><option>Les deux</option>
+          </select>
+          <select className="nga-select" value={filters.tranche_age} onChange={e => setFilter('tranche_age', e.target.value)}>
+            <option value="">Âge</option>{TRANCHES_AGE.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}
+          </select>
+          {hasActiveFilters && (
+            <button className="nga-reset" onClick={() => setFilters({ search: '', poste: '', region: '', categorie: '', niveau: '', pied: '', tranche_age: '' })}>Réinitialiser</button>
+          )}
         </div>
+        <div className="nga-count">
+          {displayPlayers.length} joueur{displayPlayers.length > 1 ? 's' : ''} trouvé{displayPlayers.length > 1 ? 's' : ''}
+          {aiResults?.ids && <span>Résultats IA</span>}
+        </div>
+      </div>
 
-        {/* Players grid */}
+      {/* GRID */}
+      <div className="nga-body">
         {loading ? <div className="spinner" /> :
           displayPlayers.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text2)' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-              <p>Aucun joueur trouvé avec ces critères.</p>
-            </div>
+            <div className="nga-empty">Aucun joueur trouvé avec ces critères.</div>
           ) : (
-            <div className="grid-auto">
+            <div className="nga-grid">
               {displayPlayers.map(p => (
-                <PlayerCard
-                  key={p.id}
-                  player={p}
-                  isRecruiter={isRecruiter}
-                  onContact={setContactPlayer}
-                  user={user}
-                />
+                <PlayerCard key={p.id} player={p} isRecruiter={isRecruiter} onContact={setContactPlayer} user={user} />
               ))}
             </div>
           )
