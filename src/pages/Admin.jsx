@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import './Dashboard.css'
+
+const PLAYER_STATUT = { en_attente: 'ngd-badge-amber', publie: 'ngd-badge-green', refuse: 'ngd-badge-pink' }
+const PRO_STATUT = { en_attente: 'ngd-badge-amber', valide: 'ngd-badge-green', refuse: 'ngd-badge-pink' }
+const ROLE_BADGE = { recruiter: 'ngd-badge-violet', agent: 'ngd-badge-amber', club: 'ngd-badge-violet' }
+const ROLE_LABELS = { recruiter: 'Recruteur', agent: 'Agent', club: 'Club' }
+const STATUT_LABEL = { en_attente: 'En attente', publie: 'Publié', valide: 'Validé', refuse: 'Refusé' }
 
 export default function Admin({ user }) {
   const [players, setPlayers] = useState([])
@@ -16,15 +23,9 @@ export default function Admin({ user }) {
   const fetchAll = async () => {
     setLoading(true)
     const [
-      { data: playersData },
-      { data: prosData },
-      { count: total },
-      { count: publie },
-      { count: attente },
-      { count: users },
-      { count: prosCount },
-      { count: prosValides },
-      { count: prosAttente },
+      { data: playersData }, { data: prosData },
+      { count: total }, { count: publie }, { count: attente },
+      { count: users }, { count: prosCount }, { count: prosValides }, { count: prosAttente },
     ] = await Promise.all([
       supabase.from('player_profiles').select('*').order('created_at', { ascending: false }),
       supabase.from('pro_profiles').select('*').order('created_at', { ascending: false }),
@@ -61,55 +62,26 @@ export default function Admin({ user }) {
   const filteredPlayers = players.filter(p => p.statut === playerTab)
   const filteredPros = pros.filter(p => p.statut === proTab)
 
-  const PLAYER_STATUT_COLORS = {
-    en_attente: 'badge-amber',
-    publie: 'badge-green',
-    refuse: 'badge-pink',
-  }
-
-  const PRO_STATUT_COLORS = {
-    en_attente: 'badge-amber',
-    valide: 'badge-green',
-    refuse: 'badge-pink',
-  }
-
-  const ROLE_COLORS = {
-    recruiter: 'badge-blue',
-    agent: 'badge-amber',
-    club: 'badge-purple',
-  }
-
-  const ROLE_LABELS = {
-    recruiter: 'Recruteur',
-    agent: 'Agent',
-    club: 'Club',
-  }
-
-  const tabStyle = (active) => ({
-    padding: '8px 18px', borderRadius: '8px', border: 'none',
-    background: active ? 'var(--purple)' : 'transparent',
-    color: active ? '#fff' : 'var(--text2)',
-    cursor: 'pointer', fontSize: '13px', fontWeight: '500',
-    transition: 'all 0.2s', fontFamily: 'var(--font)',
-  })
-
   if (user?.profile?.role !== 'admin') {
     return (
-      <div className="page fade-in" style={{ textAlign: 'center', padding: '4rem' }}>
-        <h2 style={{ color: 'var(--text)' }}>Accès refusé</h2>
+      <div className="ngd fade-in">
+        <div className="ngd-empty"><div className="ngd-empty-title">Accès refusé</div></div>
       </div>
     )
   }
 
   return (
-    <div className="page fade-in">
-      <div className="container">
-        <h1 style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--text)', marginBottom: '1.5rem' }}>
-          Dashboard Admin
-        </h1>
+    <div className="ngd fade-in">
+      <div className="ngd-wrap-wide">
+        <div className="ngd-head">
+          <div>
+            <div className="ngd-title">Espace administration</div>
+            <div className="ngd-sub">"Valide les profils et garde la plateforme propre."</div>
+          </div>
+        </div>
 
-        {/* Stats */}
-        <div className="stat-row" style={{ marginBottom: '2rem' }}>
+        {/* STATS */}
+        <div className="ngd-admin-stats">
           {[
             { num: stats.users, label: 'Utilisateurs' },
             { num: stats.total, label: 'Profils joueurs' },
@@ -118,141 +90,86 @@ export default function Admin({ user }) {
             { num: stats.pros_valides, label: 'Pros validés' },
             { num: stats.pros_attente, label: 'Pros en attente' },
           ].map(s => (
-            <div key={s.label} className="stat-card">
-              <div className="num">{s.num ?? 0}</div>
-              <div className="lbl">{s.label}</div>
+            <div key={s.label} className="ngd-stat">
+              <div className="ngd-stat-val">{s.num ?? 0}</div>
+              <div className="ngd-stat-lbl">{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Main tabs */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: 'var(--bg2)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
-          <button style={tabStyle(mainTab === 'joueurs')} onClick={() => setMainTab('joueurs')}>⚽ Joueurs</button>
-          <button style={tabStyle(mainTab === 'pros')} onClick={() => setMainTab('pros')}>🎯 Professionnels</button>
+        {/* MAIN TABS */}
+        <div className="ngd-tabs">
+          <button className={`ngd-tab ${mainTab === 'joueurs' ? 'active' : ''}`} onClick={() => setMainTab('joueurs')}>Joueurs</button>
+          <button className={`ngd-tab ${mainTab === 'pros' ? 'active' : ''}`} onClick={() => setMainTab('pros')}>Professionnels</button>
         </div>
 
-        {/* JOUEURS TAB */}
+        {/* JOUEURS */}
         {mainTab === 'joueurs' && (
           <>
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: 'var(--bg2)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
-              <button style={tabStyle(playerTab === 'en_attente')} onClick={() => setPlayerTab('en_attente')}>⏳ En attente</button>
-              <button style={tabStyle(playerTab === 'publie')} onClick={() => setPlayerTab('publie')}>✅ Publiés</button>
-              <button style={tabStyle(playerTab === 'refuse')} onClick={() => setPlayerTab('refuse')}>❌ Refusés</button>
+            <div className="ngd-tabs">
+              <button className={`ngd-tab ${playerTab === 'en_attente' ? 'active' : ''}`} onClick={() => setPlayerTab('en_attente')}>En attente</button>
+              <button className={`ngd-tab ${playerTab === 'publie' ? 'active' : ''}`} onClick={() => setPlayerTab('publie')}>Publiés</button>
+              <button className={`ngd-tab ${playerTab === 'refuse' ? 'active' : ''}`} onClick={() => setPlayerTab('refuse')}>Refusés</button>
             </div>
 
             {loading ? <div className="spinner" /> : (
               filteredPlayers.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text2)' }}>Aucun profil dans cette catégorie.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {filteredPlayers.map(p => (
-                    <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', flexShrink: 0, background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent)' }}>
-                        {p.prenom?.[0]}{p.nom?.[0]}
-                      </div>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <div style={{ fontWeight: '600', color: 'var(--text)', fontSize: '15px' }}>{p.prenom} {p.nom}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '2px' }}>{p.poste_principal} · {p.club_actuel} · {p.region} · {p.age} ans</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>{p.niveau_championnat} · {p.categorie} · {p.matchs_joues} matchs · {p.buts} buts</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        {p.video_highlights && <a href={p.video_highlights} target="_blank" rel="noreferrer" className="video-link btn-sm">🎬</a>}
-                        {p.video_match && <a href={p.video_match} target="_blank" rel="noreferrer" className="video-link btn-sm">📹</a>}
-                      </div>
-                      <span className={`badge ${PLAYER_STATUT_COLORS[p.statut]}`}>{p.statut}</span>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        {p.statut !== 'publie' && (
-                          <button className="btn btn-green btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'publie')}>
-                            {updating === p.id ? '...' : '✅ Publier'}
-                          </button>
-                        )}
-                        {p.statut !== 'refuse' && (
-                          <button className="btn btn-danger btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'refuse')}>
-                            ❌ Refuser
-                          </button>
-                        )}
-                        {p.statut !== 'en_attente' && (
-                          <button className="btn btn-secondary btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'en_attente')}>
-                            ⏳ Attente
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="ngd-empty"><div className="ngd-empty-text">Aucun profil dans cette catégorie.</div></div>
+              ) : filteredPlayers.map(p => (
+                <div key={p.id} className="ngd-row">
+                  <div className="ngd-row-avatar">{p.prenom?.[0]}{p.nom?.[0]}</div>
+                  <div className="ngd-row-info">
+                    <div className="ngd-row-name">{p.prenom} {p.nom}</div>
+                    <div className="ngd-row-meta">{p.poste_principal} · {p.club_actuel} · {p.region} · {p.age} ans</div>
+                    <div className="ngd-row-meta2">{p.niveau_championnat} · {p.categorie} · {p.matchs_joues} matchs · {p.buts} buts</div>
+                  </div>
+                  <div className="ngd-row-actions">
+                    {p.video_highlights && <a href={p.video_highlights} target="_blank" rel="noreferrer" className="ngd-btn ngd-btn-ghost ngd-btn-sm">Vidéo</a>}
+                  </div>
+                  <span className={`ngd-badge ${PLAYER_STATUT[p.statut]}`}>{STATUT_LABEL[p.statut]}</span>
+                  <div className="ngd-row-actions">
+                    {p.statut !== 'publie' && <button className="ngd-btn ngd-btn-green ngd-btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'publie')}>{updating === p.id ? '...' : 'Publier'}</button>}
+                    {p.statut !== 'refuse' && <button className="ngd-btn ngd-btn-danger ngd-btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'refuse')}>Refuser</button>}
+                    {p.statut !== 'en_attente' && <button className="ngd-btn ngd-btn-ghost ngd-btn-sm" disabled={updating === p.id} onClick={() => updatePlayerStatut(p.id, 'en_attente')}>Attente</button>}
+                  </div>
                 </div>
-              )
+              ))
             )}
           </>
         )}
 
-        {/* PROFESSIONNELS TAB */}
+        {/* PROS */}
         {mainTab === 'pros' && (
           <>
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '1.5rem', background: 'var(--bg2)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
-              <button style={tabStyle(proTab === 'en_attente')} onClick={() => setProTab('en_attente')}>⏳ En attente</button>
-              <button style={tabStyle(proTab === 'valide')} onClick={() => setProTab('valide')}>✅ Validés</button>
-              <button style={tabStyle(proTab === 'refuse')} onClick={() => setProTab('refuse')}>❌ Refusés</button>
+            <div className="ngd-tabs">
+              <button className={`ngd-tab ${proTab === 'en_attente' ? 'active' : ''}`} onClick={() => setProTab('en_attente')}>En attente</button>
+              <button className={`ngd-tab ${proTab === 'valide' ? 'active' : ''}`} onClick={() => setProTab('valide')}>Validés</button>
+              <button className={`ngd-tab ${proTab === 'refuse' ? 'active' : ''}`} onClick={() => setProTab('refuse')}>Refusés</button>
             </div>
 
             {loading ? <div className="spinner" /> : (
               filteredPros.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text2)' }}>Aucun professionnel dans cette catégorie.</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {filteredPros.map(p => (
-                    <div key={p.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', flexShrink: 0, background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', color: 'var(--accent)' }}>
-                        {p.prenom?.[0]}{p.nom?.[0]}
-                      </div>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <div style={{ fontWeight: '600', color: 'var(--text)', fontSize: '15px' }}>{p.prenom} {p.nom}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '2px' }}>
-                          {p.organisation || 'Organisation non renseignée'} · {p.region_couverte}
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>
-                          📧 {p.email_pro || 'Non renseigné'} · 📱 {p.whatsapp || 'Non renseigné'}
-                        </div>
-                        {p.postes_recherches && (
-                          <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>
-                            Recherche : {p.postes_recherches}
-                          </div>
-                        )}
-                        {p.criteres && (
-                          <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>
-                            Critères : {p.criteres}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-                        <span className={`badge ${ROLE_COLORS[p.role_pro] || 'badge-blue'}`}>
-                          {ROLE_LABELS[p.role_pro] || p.role_pro}
-                        </span>
-                        <span className={`badge ${PRO_STATUT_COLORS[p.statut]}`}>{p.statut}</span>
-                        <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                          {new Date(p.created_at).toLocaleDateString('fr-FR')}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '6px', flexDirection: 'column' }}>
-                        {p.statut !== 'valide' && (
-                          <button className="btn btn-green btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'valide')}>
-                            {updating === p.id ? '...' : '✅ Valider'}
-                          </button>
-                        )}
-                        {p.statut !== 'refuse' && (
-                          <button className="btn btn-danger btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'refuse')}>
-                            ❌ Refuser
-                          </button>
-                        )}
-                        {p.statut !== 'en_attente' && (
-                          <button className="btn btn-secondary btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'en_attente')}>
-                            ⏳ Attente
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="ngd-empty"><div className="ngd-empty-text">Aucun professionnel dans cette catégorie.</div></div>
+              ) : filteredPros.map(p => (
+                <div key={p.id} className="ngd-row">
+                  <div className="ngd-row-avatar">{p.prenom?.[0]}{p.nom?.[0]}</div>
+                  <div className="ngd-row-info">
+                    <div className="ngd-row-name">{p.prenom} {p.nom}</div>
+                    <div className="ngd-row-meta">{p.organisation || 'Organisation non renseignée'} · {p.region_couverte}</div>
+                    <div className="ngd-row-meta2">{p.email_pro || 'Email non renseigné'} · {p.whatsapp || 'WhatsApp non renseigné'}</div>
+                    {p.postes_recherches && <div className="ngd-row-meta2">Recherche : {p.postes_recherches}</div>}
+                  </div>
+                  <div className="ngd-badges" style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <span className={`ngd-badge ${ROLE_BADGE[p.role_pro] || 'ngd-badge-violet'}`}>{ROLE_LABELS[p.role_pro] || p.role_pro}</span>
+                    <span className={`ngd-badge ${PRO_STATUT[p.statut]}`}>{STATUT_LABEL[p.statut]}</span>
+                  </div>
+                  <div className="ngd-row-actions">
+                    {p.statut !== 'valide' && <button className="ngd-btn ngd-btn-green ngd-btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'valide')}>{updating === p.id ? '...' : 'Valider'}</button>}
+                    {p.statut !== 'refuse' && <button className="ngd-btn ngd-btn-danger ngd-btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'refuse')}>Refuser</button>}
+                    {p.statut !== 'en_attente' && <button className="ngd-btn ngd-btn-ghost ngd-btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'en_attente')}>Attente</button>}
+                  </div>
                 </div>
-              )
+              ))
             )}
           </>
         )}
