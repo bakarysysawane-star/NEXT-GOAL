@@ -1,21 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import AvatarUpload from '../components/AvatarUpload'
+import './Dashboard.css'
 
 const REGIONS = ['Toute la France','Île-de-France','PACA','Occitanie','Auvergne-Rhône-Alpes',
   'Nouvelle-Aquitaine','Hauts-de-France','Grand Est','Normandie','Bretagne','Pays de la Loire']
-
-const S = {
-  input: { padding:'10px 14px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', borderRadius:'8px', color:'var(--text)', fontFamily:'var(--font)', fontSize:'14px', outline:'none', width:'100%' },
-  label: { fontSize:'12px', fontWeight:'500', color:'var(--text2)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px', display:'block' },
-  fg: { display:'flex', flexDirection:'column', gap:'4px' },
-  grid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' },
-}
-
-const ROLE_LABELS = { recruiter:'Recruteur', agent:'Agent sportif', club:'Club' }
-const ROLE_COLORS = { recruiter:'badge-blue', agent:'badge-amber', club:'badge-purple' }
-const STATUT_COLORS = { en_attente:'badge-amber', valide:'badge-green', refuse:'badge-pink' }
-const STATUT_LABELS = { en_attente:'En attente de validation', valide:'✓ Profil validé', refuse:'Refusé' }
+const ROLE_LABELS = { recruiter: 'Recruteur', agent: 'Agent sportif', club: 'Club' }
+const STATUT_BADGE = { en_attente: 'ngd-badge-amber', valide: 'ngd-badge-green', refuse: 'ngd-badge-pink' }
+const STATUT_LABEL = { en_attente: 'En attente de validation', valide: 'Profil validé', refuse: 'Refusé' }
 
 export default function MyProProfile({ user }) {
   const [profile, setProfile] = useState(null)
@@ -30,9 +22,7 @@ export default function MyProProfile({ user }) {
 
   const fetchProfile = async () => {
     const { data } = await supabase.from('pro_profiles').select('*').eq('user_id', user.id).single()
-    setProfile(data)
-    setForm(data || {})
-    setLoading(false)
+    setProfile(data); setForm(data || {}); setLoading(false)
   }
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
@@ -40,8 +30,7 @@ export default function MyProProfile({ user }) {
   const handleAvatarUpload = async (photoUrl) => {
     await supabase.from('pro_profiles').update({ photo_url: photoUrl }).eq('id', profile.id)
     setProfile(p => ({ ...p, photo_url: photoUrl }))
-    setSuccess('✅ Photo mise à jour !')
-    setTimeout(() => setSuccess(''), 3000)
+    setSuccess('Photo mise à jour'); setTimeout(() => setSuccess(''), 3000)
   }
 
   const handleSave = async () => {
@@ -49,110 +38,96 @@ export default function MyProProfile({ user }) {
     try {
       const { error: err } = await supabase.from('pro_profiles').update({ ...form, updated_at: new Date().toISOString() }).eq('id', profile.id)
       if (err) throw err
-      setProfile({ ...profile, ...form })
-      setEditing(false)
-      setSuccess('✅ Profil mis à jour !')
-      setTimeout(() => setSuccess(''), 3000)
+      setProfile({ ...profile, ...form }); setEditing(false)
+      setSuccess('Profil mis à jour'); setTimeout(() => setSuccess(''), 3000)
     } catch (err) { setError(err.message) }
     finally { setSaving(false) }
   }
 
-  if (loading) return <div className="spinner" />
+  if (loading) return <div className="ngd"><div className="spinner" style={{ margin: '80px auto' }} /></div>
   if (!profile) return (
-    <div className="page fade-in"><div className="container" style={{ textAlign:'center', padding:'4rem' }}>
-      <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>📋</div>
-      <h2 style={{ color:'var(--text)', marginBottom:'8px' }}>Profil en cours de validation</h2>
-      <p style={{ color:'var(--text2)', fontSize:'14px' }}>Bakary validera votre profil sous 48h.</p>
-    </div></div>
+    <div className="ngd fade-in"><div className="ngd-wrap"><div className="ngd-empty">
+      <div className="ngd-empty-title">Profil en cours de validation</div>
+      <div className="ngd-empty-text">Ton profil sera validé sous 48h.</div>
+    </div></div></div>
   )
 
   return (
-    <div className="page fade-in">
-      <div className="container" style={{ maxWidth:'800px' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem' }}>
+    <div className="ngd fade-in">
+      <div className="ngd-wrap">
+        <div className="ngd-head">
           <div>
-            <h1 style={{ fontSize:'1.5rem', fontWeight:'600', color:'var(--text)' }}>Mon profil professionnel</h1>
-            <div style={{ display:'flex', gap:'8px', marginTop:'8px', flexWrap:'wrap' }}>
-              <span className={`badge ${ROLE_COLORS[profile.role_pro]||'badge-blue'}`}>{ROLE_LABELS[profile.role_pro]||profile.role_pro}</span>
-              <span className={`badge ${STATUT_COLORS[profile.statut]||'badge-amber'}`}>{STATUT_LABELS[profile.statut]||profile.statut}</span>
+            <div className="ngd-title">Mon profil pro</div>
+            <div className="ngd-badges" style={{ marginTop: 10 }}>
+              <span className="ngd-badge ngd-badge-violet">{ROLE_LABELS[profile.role_pro] || profile.role_pro}</span>
+              <span className={`ngd-badge ${STATUT_BADGE[profile.statut] || 'ngd-badge-amber'}`}>{STATUT_LABEL[profile.statut] || profile.statut}</span>
             </div>
           </div>
-          <div style={{ display:'flex', gap:'10px' }}>
-            {!editing ? (
-              <button className="btn btn-primary" onClick={() => setEditing(true)}>✏️ Modifier</button>
-            ) : (
-              <>
-                <button className="btn btn-secondary" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
-                <button className="btn btn-green" onClick={handleSave} disabled={saving}>{saving ? 'Sauvegarde...' : '💾 Sauvegarder'}</button>
-              </>
-            )}
+          <div className="ngd-head-actions">
+            {!editing
+              ? <button className="ngd-btn ngd-btn-primary" onClick={() => setEditing(true)}>Modifier</button>
+              : <>
+                  <button className="ngd-btn ngd-btn-ghost" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
+                  <button className="ngd-btn ngd-btn-violet" onClick={handleSave} disabled={saving}>{saving ? '...' : 'Sauvegarder'}</button>
+                </>
+            }
           </div>
         </div>
 
-        {success && <div className="alert alert-success" style={{ marginBottom:'1rem' }}>{success}</div>}
-        {error && <div className="alert alert-error" style={{ marginBottom:'1rem' }}>{error}</div>}
+        {success && <div className="ngd-alert ngd-alert-success">{success}</div>}
+        {error && <div className="ngd-alert ngd-alert-error">{error}</div>}
 
-        {/* Avatar */}
-        <div className="card" style={{ marginBottom:'1rem', display:'flex', alignItems:'center', gap:'2rem', flexWrap:'wrap' }}>
-          <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
-          <div>
-            <h2 style={{ fontSize:'1.2rem', fontWeight:'700', color:'var(--text)' }}>{profile.prenom} {profile.nom}</h2>
-            <p style={{ color:'var(--text2)', fontSize:'14px', marginTop:'4px' }}>{profile.organisation || 'Organisation non renseignée'}</p>
-            <p style={{ color:'var(--text3)', fontSize:'13px', marginTop:'2px' }}>{profile.region_couverte}</p>
+        <div className="ngd-card">
+          <div className="ngd-avatar-row">
+            <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
+            <div>
+              <div className="ngd-avatar-name">{profile.prenom} {profile.nom}</div>
+              <div className="ngd-avatar-meta">{profile.organisation || 'Organisation non renseignée'}</div>
+              <div className="ngd-avatar-meta2">{profile.region_couverte}</div>
+            </div>
           </div>
         </div>
 
-        {/* Infos personnelles */}
-        <div className="card" style={{ marginBottom:'1rem' }}>
-          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>👤 Informations personnelles</h2>
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations personnelles</div>
           {editing ? (
-            <div style={S.grid}>
-              <div style={S.fg}><label style={S.label}>Prénom</label><input style={S.input} value={form.prenom||''} onChange={set('prenom')} /></div>
-              <div style={S.fg}><label style={S.label}>Nom</label><input style={S.input} value={form.nom||''} onChange={set('nom')} /></div>
-              <div style={S.fg}><label style={S.label}>Email professionnel</label><input style={S.input} type="email" value={form.email_pro||''} onChange={set('email_pro')} /></div>
-              <div style={S.fg}><label style={S.label}>WhatsApp</label><input style={S.input} value={form.whatsapp||''} onChange={set('whatsapp')} /></div>
+            <div className="ngd-grid">
+              <div className="ngd-field"><label>Prénom</label><input value={form.prenom||''} onChange={set('prenom')} /></div>
+              <div className="ngd-field"><label>Nom</label><input value={form.nom||''} onChange={set('nom')} /></div>
+              <div className="ngd-field"><label>Email professionnel</label><input type="email" value={form.email_pro||''} onChange={set('email_pro')} /></div>
+              <div className="ngd-field"><label>WhatsApp</label><input value={form.whatsapp||''} onChange={set('whatsapp')} /></div>
             </div>
           ) : (
-            <div style={S.grid}>
-              {[['Prénom',profile.prenom],['Nom',profile.nom],['Email pro',profile.email_pro||'-'],['WhatsApp',profile.whatsapp||'-']].map(([k,v])=>(
-                <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
-                  <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
-                  <div style={{ fontWeight:'500', color:'var(--text)' }}>{v}</div>
-                </div>
+            <div className="ngd-grid">
+              {[['Prénom',profile.prenom],['Nom',profile.nom],['Email pro',profile.email_pro||'—'],['WhatsApp',profile.whatsapp||'—']].map(([k,v])=>(
+                <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Infos professionnelles */}
-        <div className="card" style={{ marginBottom:'1rem' }}>
-          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>🎯 Informations professionnelles</h2>
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations professionnelles</div>
           {editing ? (
-            <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
-              <div style={S.grid}>
-                <div style={S.fg}><label style={S.label}>Rôle</label><select style={S.input} value={form.role_pro||''} onChange={set('role_pro')}><option value="recruiter">Recruteur</option><option value="agent">Agent sportif</option><option value="club">Club</option></select></div>
-                <div style={S.fg}><label style={S.label}>Organisation</label><input style={S.input} value={form.organisation||''} onChange={set('organisation')} /></div>
-                <div style={S.fg}><label style={S.label}>Région couverte</label><select style={S.input} value={form.region_couverte||''} onChange={set('region_couverte')}>{REGIONS.map(r=><option key={r}>{r}</option>)}</select></div>
-                <div style={S.fg}><label style={S.label}>Postes recherchés</label><input style={S.input} value={form.postes_recherches||''} onChange={set('postes_recherches')} /></div>
-                <div style={S.fg}><label style={S.label}>Niveau ciblé</label><input style={S.input} value={form.niveau_cible||''} onChange={set('niveau_cible')} /></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="ngd-grid">
+                <div className="ngd-field"><label>Rôle</label><select value={form.role_pro||''} onChange={set('role_pro')}><option value="recruiter">Recruteur</option><option value="agent">Agent sportif</option><option value="club">Club</option></select></div>
+                <div className="ngd-field"><label>Organisation</label><input value={form.organisation||''} onChange={set('organisation')} /></div>
+                <div className="ngd-field"><label>Région couverte</label><select value={form.region_couverte||''} onChange={set('region_couverte')}>{REGIONS.map(r=><option key={r}>{r}</option>)}</select></div>
+                <div className="ngd-field"><label>Postes recherchés</label><input value={form.postes_recherches||''} onChange={set('postes_recherches')} /></div>
+                <div className="ngd-field"><label>Niveau ciblé</label><input value={form.niveau_cible||''} onChange={set('niveau_cible')} /></div>
               </div>
-              <div style={S.fg}><label style={S.label}>Critères particuliers</label><textarea style={{ ...S.input, minHeight:'80px', resize:'vertical' }} value={form.criteres||''} onChange={set('criteres')} /></div>
+              <div className="ngd-field"><label>Critères particuliers</label><textarea rows={3} value={form.criteres||''} onChange={set('criteres')} /></div>
             </div>
           ) : (
-            <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
-              <div style={S.grid}>
-                {[['Organisation',profile.organisation||'-'],['Région couverte',profile.region_couverte||'-'],['Postes recherchés',profile.postes_recherches||'-'],['Niveau ciblé',profile.niveau_cible||'-']].map(([k,v])=>(
-                  <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
-                    <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
-                    <div style={{ fontWeight:'500', color:'var(--text)', fontSize:'14px' }}>{v}</div>
-                  </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="ngd-grid">
+                {[['Organisation',profile.organisation||'—'],['Région couverte',profile.region_couverte||'—'],['Postes recherchés',profile.postes_recherches||'—'],['Niveau ciblé',profile.niveau_cible||'—']].map(([k,v])=>(
+                  <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
                 ))}
               </div>
               {profile.criteres && (
-                <div style={{ background:'rgba(255,255,255,0.03)', padding:'12px', borderRadius:'8px' }}>
-                  <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'6px' }}>CRITÈRES PARTICULIERS</div>
-                  <p style={{ fontSize:'14px', color:'var(--text)', lineHeight:1.6 }}>{profile.criteres}</p>
-                </div>
+                <div className="ngd-readfield"><div className="ngd-readfield-label">Critères particuliers</div><div className="ngd-readfield-val" style={{ lineHeight: 1.6 }}>{profile.criteres}</div></div>
               )}
             </div>
           )}
