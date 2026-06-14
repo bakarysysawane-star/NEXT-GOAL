@@ -124,3 +124,17 @@
 @media (max-width: 640px) {
   .ngd-completion-list { grid-template-columns: 1fr; }
 }
+
+/* ===== Historique de clubs (gestion) ===== */
+.ngd-club-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.ngd-club-item { display: flex; align-items: center; gap: 12px; background: #111; border: 1px solid #1a1a1a; border-radius: 6px; padding: 12px 14px; }
+.ngd-club-info { flex: 1; }
+.ngd-club-name { font-weight: 700; font-size: 14px; color: #fff; }
+.ngd-club-period { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.ngd-club-delete { background: transparent; border: 1px solid #2a2a2a; color: rgba(255,255,255,0.4); width: 28px; height: 28px; border-radius: 5px; cursor: pointer; font-size: 12px; flex-shrink: 0; }
+.ngd-club-delete:hover { border-color: rgba(239,83,80,0.5); color: #ef5350; }
+.ngd-club-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ngd-club-input { background: #111; border: 1px solid #222; color: rgba(255,255,255,0.8); padding: 10px 12px; border-radius: 5px; font-family: 'Barlow', sans-serif; font-size: 13px; outline: none; flex: 1; min-width: 120px; }
+.ngd-club-input:focus { border-color: #B87FFF; }
+.ngd-club-year { flex: 0 0 90px; min-width: 70px; }
+.ngd-club-hint { font-size: 11px; color: rgba(255,255,255,0.3); font-style: italic; margin-top: 10px; }
