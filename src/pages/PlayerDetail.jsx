@@ -132,7 +132,10 @@ export default function PlayerDetail({ user }) {
             <button className="ngp-btn-edit" onClick={() => navigate('/mon-profil')}>Modifier mon profil</button>
           )}
           {isOwnProfile && viewCount > 0 && (
-            <div className="ngp-views">Vu par {viewCount} pro{viewCount > 1 ? 's' : ''}</div>
+            <div className="ngp-views-badge">
+              <span className="ngp-views-num">{viewCount}</span>
+              <span className="ngp-views-txt">pro{viewCount > 1 ? 's' : ''} {viewCount > 1 ? 'ont' : 'a'} consulté ton profil</span>
+            </div>
           )}
         </div>
       </div>
