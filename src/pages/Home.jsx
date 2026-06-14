@@ -18,6 +18,7 @@ export default function Home() {
           <Link to="/inscription/joueur" className="ngl-btn-main">Créer mon profil joueur</Link>
           <Link to="/inscription/pro" className="ngl-btn-ghost">Je recrute des joueurs</Link>
         </div>
+        <p className="ngl-hero-login">Déjà inscrit ? <Link to="/connexion">Se connecter</Link></p>
         <div className="ngl-numbers">
           <div>
             <div className="ngl-num-val">100%</div>
