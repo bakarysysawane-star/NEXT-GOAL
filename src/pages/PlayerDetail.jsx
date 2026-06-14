@@ -12,6 +12,23 @@ const POSTE_ABBR = {
 }
 const PIED_ABBR = { 'Droit': 'D', 'Gauche': 'G', 'Les deux': 'DG' }
 
+// Transforme un lien YouTube en URL d'intégration (lecteur)
+function getYoutubeEmbed(url) {
+  if (!url) return null
+  // Formats gérés : youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+    /(?:youtu\.be\/)([\w-]{11})/,
+    /(?:youtube\.com\/shorts\/)([\w-]{11})/,
+    /(?:youtube\.com\/embed\/)([\w-]{11})/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m) return `https://www.youtube.com/embed/${m[1]}`
+  }
+  return null
+}
+
 export default function PlayerDetail({ user }) {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -147,18 +164,48 @@ export default function PlayerDetail({ user }) {
           {(player.video_highlights || player.video_match) && (
             <div>
               <div className="ngp-label">Vidéos</div>
-              <div className="ngp-videos">
+              <div className="ngp-videos-list">
                 {player.video_highlights && (
-                  <a href={player.video_highlights} target="_blank" rel="noreferrer" className="ngp-video">
-                    <div className="ngp-video-play"></div>
-                    <div className="ngp-video-label">Highlights</div>
-                  </a>
+                  <div className="ngp-video-block">
+                    <div className="ngp-video-title">Highlights</div>
+                    {getYoutubeEmbed(player.video_highlights) ? (
+                      <div className="ngp-video-frame">
+                        <iframe
+                          src={getYoutubeEmbed(player.video_highlights)}
+                          title="Highlights"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    ) : (
+                      <a href={player.video_highlights} target="_blank" rel="noreferrer" className="ngp-video">
+                        <div className="ngp-video-play"></div>
+                        <div className="ngp-video-label">Voir la vidéo</div>
+                      </a>
+                    )}
+                  </div>
                 )}
                 {player.video_match && (
-                  <a href={player.video_match} target="_blank" rel="noreferrer" className="ngp-video">
-                    <div className="ngp-video-play"></div>
-                    <div className="ngp-video-label">Match complet</div>
-                  </a>
+                  <div className="ngp-video-block">
+                    <div className="ngp-video-title">Match complet</div>
+                    {getYoutubeEmbed(player.video_match) ? (
+                      <div className="ngp-video-frame">
+                        <iframe
+                          src={getYoutubeEmbed(player.video_match)}
+                          title="Match complet"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    ) : (
+                      <a href={player.video_match} target="_blank" rel="noreferrer" className="ngp-video">
+                        <div className="ngp-video-play"></div>
+                        <div className="ngp-video-label">Voir la vidéo</div>
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
