@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { signIn } from '../lib/supabase'
+import './Login.css'
 
 export default function Login({ setUser }) {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -14,7 +14,7 @@ export default function Login({ setUser }) {
     setError('')
     setLoading(true)
     try {
-      const data = await signIn(email, password)
+      await signIn(email, password)
       window.location.href = '/joueurs'
     } catch (err) {
       setError(err.message === 'Invalid login credentials'
@@ -26,53 +26,40 @@ export default function Login({ setUser }) {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '2rem',
-      background: 'radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.08) 0%, transparent 60%)',
-    }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <span className="logo-text" style={{ fontSize: '16px' }}>NEXT GOAL</span>
-          </Link>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: '600', marginTop: '1.5rem', color: 'var(--text)' }}>
-            Connexion
-          </h1>
-          <p style={{ color: 'var(--text2)', fontSize: '14px', marginTop: '6px' }}>
-            Bienvenue, connecte-toi à ton espace.
-          </p>
+    <div className="ngl-auth fade-in">
+      <div className="ngl-auth-glow" />
+      <div className="ngl-auth-box">
+        <div className="ngl-auth-head">
+          <Link to="/" className="ngl-auth-logo">NEXT GOAL</Link>
+          <h1 className="ngl-auth-title">Connexion</h1>
+          <p className="ngl-auth-sub">"Content de te revoir. Reprends là où tu t'es arrêté."</p>
         </div>
 
-        <div className="card">
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {error && <div className="alert alert-error">{error}</div>}
+        <div className="ngl-auth-card">
+          <form onSubmit={handleSubmit} className="ngl-auth-form">
+            {error && <div className="ngl-auth-error">{error}</div>}
 
-            <div className="form-group">
+            <div className="ngl-auth-field">
               <label>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="ton@email.com" required />
             </div>
 
-            <div className="form-group">
+            <div className="ngl-auth-field">
               <label>Mot de passe</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••" required />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={loading}
-              style={{ width: '100%', padding: '12px', marginTop: '8px' }}>
+            <button className="ngl-auth-btn" type="submit" disabled={loading}>
               {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
 
-          <div className="divider" />
+          <div className="ngl-auth-divider" />
 
-          <p style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text2)' }}>
-            Pas encore de compte ?{' '}
-            <Link to="/inscription" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '500' }}>
-              S'inscrire
-            </Link>
+          <p className="ngl-auth-foot">
+            Pas encore de compte ? <Link to="/inscription">S'inscrire</Link>
           </p>
         </div>
       </div>
