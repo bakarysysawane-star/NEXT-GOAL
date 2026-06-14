@@ -35,11 +35,61 @@ export default function PlayerDetail({ user }) {
   const [player, setPlayer] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showContact, setShowContact] = useState(false)
+  const [viewers, setViewers] = useState([])
+  const [viewCount, setViewCount] = useState(0)
 
   useEffect(() => {
-    supabase.from('player_profiles').select('*').eq('id', id).single()
-      .then(({ data }) => { setPlayer(data); setLoading(false) })
-  }, [id])
+    let cancelled = false
+
+    const load = async () => {
+      // 1. Charger le joueur
+      const { data: playerData } = await supabase
+        .from('player_profiles').select('*').eq('id', id).single()
+      if (cancelled) return
+      setPlayer(playerData)
+      setLoading(false)
+      if (!playerData) return
+
+      const role = user?.profile?.role
+      const isPro = ['recruiter', 'agent', 'club'].includes(role)
+      const isOwner = user?.id && playerData.user_id === user.id
+
+      // 2. Si c'est un pro (pas admin, pas le propriétaire) : enregistrer la vue
+      if (isPro && !isOwner && user?.id) {
+        await supabase.from('profile_views').upsert(
+          { player_id: id, viewer_id: user.id, viewed_at: new Date().toISOString() },
+          { onConflict: 'player_id,viewer_id' }
+        )
+      }
+
+      // 3. Si c'est le propriétaire : charger qui a vu son profil
+      if (isOwner) {
+        const { data: views } = await supabase
+          .from('profile_views')
+          .select('viewer_id, viewed_at')
+          .eq('player_id', id)
+          .order('viewed_at', { ascending: false })
+
+        const list = views || []
+        setViewCount(list.length)
+
+        if (list.length > 0) {
+          // Récupérer les infos des pros qui ont vu le profil
+          const viewerIds = list.map(v => v.viewer_id)
+          const { data: pros } = await supabase
+            .from('pro_profiles')
+            .select('user_id, prenom, nom, organisation, role_pro')
+            .in('user_id', viewerIds)
+          const prosMap = {}
+          ;(pros || []).forEach(p => { prosMap[p.user_id] = p })
+          setViewers(list.map(v => ({ ...v, pro: prosMap[v.viewer_id] })).filter(v => v.pro))
+        }
+      }
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [id, user])
 
   const isRecruiter = ['recruiter', 'agent', 'club', 'admin'].includes(user?.profile?.role)
   const isOwnProfile = user?.id && player?.user_id === user.id
@@ -81,8 +131,8 @@ export default function PlayerDetail({ user }) {
           {isOwnProfile && (
             <button className="ngp-btn-edit" onClick={() => navigate('/mon-profil')}>Modifier mon profil</button>
           )}
-          {typeof player.vues === 'number' && player.vues > 0 && (
-            <div className="ngp-views">Vu par {player.vues} recruteur{player.vues > 1 ? 's' : ''}</div>
+          {isOwnProfile && viewCount > 0 && (
+            <div className="ngp-views">Vu par {viewCount} pro{viewCount > 1 ? 's' : ''}</div>
           )}
         </div>
       </div>
@@ -207,6 +257,32 @@ export default function PlayerDetail({ user }) {
                     )}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {isOwnProfile && viewers.length > 0 && (
+            <div>
+              <div className="ngp-label">Qui a consulté ton profil</div>
+              <div className="ngp-viewers">
+                {viewers.map((v, i) => {
+                  const ROLE = { recruiter: 'Recruteur', agent: 'Agent', club: 'Club' }
+                  const init = `${v.pro.prenom?.[0] || ''}${v.pro.nom?.[0] || ''}`.toUpperCase()
+                  return (
+                    <div key={i} className="ngp-viewer">
+                      <div className="ngp-viewer-avatar">{init}</div>
+                      <div className="ngp-viewer-info">
+                        <div className="ngp-viewer-name">{v.pro.prenom} {v.pro.nom}</div>
+                        <div className="ngp-viewer-meta">
+                          {ROLE[v.pro.role_pro] || 'Pro'}{v.pro.organisation ? ` · ${v.pro.organisation}` : ''}
+                        </div>
+                      </div>
+                      <div className="ngp-viewer-date">
+                        {new Date(v.viewed_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
