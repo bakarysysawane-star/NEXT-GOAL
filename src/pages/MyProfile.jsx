@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import AvatarUpload from '../components/AvatarUpload'
+import './Dashboard.css'
 
 const REGIONS = ['Île-de-France','PACA','Occitanie','Auvergne-Rhône-Alpes','Nouvelle-Aquitaine',
   'Hauts-de-France','Grand Est','Normandie','Bretagne','Pays de la Loire',
@@ -9,13 +10,8 @@ const POSTES = ['Gardien de but','Défenseur central','Latéral droit','Latéral
   'Milieu défensif','Milieu central','Milieu offensif','Ailier droit','Ailier gauche','Attaquant']
 const NIVEAUX = ['National 1','National 2','National 3','Régional 1','Régional 2','Régional 3','Départemental 1','Départemental 2','Loisir']
 const CATEGORIES = ['U17','U18','U19','U21','Senior','Vétéran']
-
-const S = {
-  input: { padding:'10px 14px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', borderRadius:'8px', color:'var(--text)', fontFamily:'var(--font)', fontSize:'14px', outline:'none', width:'100%' },
-  label: { fontSize:'12px', fontWeight:'500', color:'var(--text2)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'4px', display:'block' },
-  fg: { display:'flex', flexDirection:'column', gap:'4px' },
-  grid: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' },
-}
+const STATUT_BADGE = { en_attente: 'ngd-badge-amber', publie: 'ngd-badge-green', refuse: 'ngd-badge-pink' }
+const STATUT_LABEL = { en_attente: 'En attente de validation', publie: 'Profil publié', refuse: 'Refusé' }
 
 export default function MyProfile({ user }) {
   const [profile, setProfile] = useState(null)
@@ -31,19 +27,15 @@ export default function MyProfile({ user }) {
 
   const fetchProfile = async () => {
     const { data } = await supabase.from('player_profiles').select('*').eq('user_id', user.id).single()
-    setProfile(data)
-    setForm(data || {})
-    setLoading(false)
+    setProfile(data); setForm(data || {}); setLoading(false)
   }
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
   const handleAvatarUpload = async (photoUrl) => {
     await supabase.from('player_profiles').update({ photo_url: photoUrl }).eq('id', profile.id)
-    setProfile(p => ({ ...p, photo_url: photoUrl }))
-    setForm(f => ({ ...f, photo_url: photoUrl }))
-    setSuccess('✅ Photo mise à jour !')
-    setTimeout(() => setSuccess(''), 3000)
+    setProfile(p => ({ ...p, photo_url: photoUrl })); setForm(f => ({ ...f, photo_url: photoUrl }))
+    setSuccess('Photo mise à jour'); setTimeout(() => setSuccess(''), 3000)
   }
 
   const handleSave = async () => {
@@ -52,10 +44,8 @@ export default function MyProfile({ user }) {
       const age = form.date_naissance ? Math.floor((Date.now() - new Date(form.date_naissance)) / 31557600000) : form.age
       const { error: err } = await supabase.from('player_profiles').update({ ...form, age, updated_at: new Date().toISOString() }).eq('id', profile.id)
       if (err) throw err
-      setProfile({ ...profile, ...form, age })
-      setEditing(false)
-      setSuccess('✅ Profil mis à jour !')
-      setTimeout(() => setSuccess(''), 3000)
+      setProfile({ ...profile, ...form, age }); setEditing(false)
+      setSuccess('Profil mis à jour'); setTimeout(() => setSuccess(''), 3000)
     } catch (err) { setError(err.message) }
     finally { setSaving(false) }
   }
@@ -76,125 +66,116 @@ export default function MyProfile({ user }) {
       const description = data.content?.[0]?.text || ''
       await supabase.from('player_profiles').update({ ai_description: description }).eq('id', profile.id)
       setProfile(p => ({ ...p, ai_description: description }))
-      setSuccess('✨ Description IA générée !')
-      setTimeout(() => setSuccess(''), 3000)
-    } catch (err) { setError('Erreur IA: ' + err.message) }
+      setSuccess('Description générée'); setTimeout(() => setSuccess(''), 3000)
+    } catch (err) { setError('Erreur IA : ' + err.message) }
     finally { setAiLoading(false) }
   }
 
-  if (loading) return <div className="spinner" />
+  if (loading) return <div className="ngd"><div className="spinner" style={{ margin: '80px auto' }} /></div>
   if (!profile) return (
-    <div className="page fade-in"><div className="container" style={{ textAlign:'center', padding:'4rem' }}>
-      <div style={{ fontSize:'3rem', marginBottom:'1rem' }}>📋</div>
-      <h2 style={{ color:'var(--text)', marginBottom:'8px' }}>Profil en cours de validation</h2>
-      <p style={{ color:'var(--text2)', fontSize:'14px' }}>Bakary validera votre profil sous 48h.</p>
-    </div></div>
+    <div className="ngd fade-in"><div className="ngd-wrap"><div className="ngd-empty">
+      <div className="ngd-empty-title">Profil en cours de validation</div>
+      <div className="ngd-empty-text">Ton profil sera validé sous 48h.</div>
+    </div></div></div>
   )
 
-  const StatusBadge = () => {
-    const s = { en_attente:{label:'En attente de validation',cls:'badge-amber'}, publie:{label:'✓ Profil publié',cls:'badge-green'}, refuse:{label:'Refusé',cls:'badge-pink'} }
-    const st = s[profile.statut] || s.en_attente
-    return <span className={`badge ${st.cls}`}>{st.label}</span>
-  }
-
   return (
-    <div className="page fade-in">
-      <div className="container" style={{ maxWidth:'800px' }}>
-        {/* Header */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'2rem', flexWrap:'wrap', gap:'1rem' }}>
+    <div className="ngd fade-in">
+      <div className="ngd-wrap">
+        <div className="ngd-head">
           <div>
-            <h1 style={{ fontSize:'1.5rem', fontWeight:'600', color:'var(--text)' }}>Mon profil joueur</h1>
-            <div style={{ marginTop:'6px' }}><StatusBadge /></div>
+            <div className="ngd-title">Mon profil joueur</div>
+            <div className="ngd-badges" style={{ marginTop: 10 }}>
+              <span className={`ngd-badge ${STATUT_BADGE[profile.statut] || 'ngd-badge-amber'}`}>{STATUT_LABEL[profile.statut] || profile.statut}</span>
+            </div>
           </div>
-          <div style={{ display:'flex', gap:'10px' }}>
-            {!editing ? (
-              <button className="btn btn-primary" onClick={() => setEditing(true)}>✏️ Modifier</button>
-            ) : (
-              <>
-                <button className="btn btn-secondary" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
-                <button className="btn btn-green" onClick={handleSave} disabled={saving}>{saving ? 'Sauvegarde...' : '💾 Sauvegarder'}</button>
-              </>
-            )}
+          <div className="ngd-head-actions">
+            {!editing
+              ? <button className="ngd-btn ngd-btn-primary" onClick={() => setEditing(true)}>Modifier</button>
+              : <>
+                  <button className="ngd-btn ngd-btn-ghost" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
+                  <button className="ngd-btn ngd-btn-violet" onClick={handleSave} disabled={saving}>{saving ? '...' : 'Sauvegarder'}</button>
+                </>
+            }
           </div>
         </div>
 
-        {success && <div className="alert alert-success" style={{ marginBottom:'1rem' }}>{success}</div>}
-        {error && <div className="alert alert-error" style={{ marginBottom:'1rem' }}>{error}</div>}
+        {success && <div className="ngd-alert ngd-alert-success">{success}</div>}
+        {error && <div className="ngd-alert ngd-alert-error">{error}</div>}
 
         {/* Avatar */}
-        <div className="card" style={{ marginBottom:'1rem', display:'flex', alignItems:'center', gap:'2rem', flexWrap:'wrap' }}>
-          <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
-          <div>
-            <h2 style={{ fontSize:'1.2rem', fontWeight:'700', color:'var(--text)' }}>{profile.prenom} {profile.nom}</h2>
-            <p style={{ color:'var(--text2)', fontSize:'14px', marginTop:'4px' }}>{profile.poste_principal} · {profile.club_actuel}</p>
-            <p style={{ color:'var(--text3)', fontSize:'13px', marginTop:'2px' }}>{profile.region} · {profile.age} ans</p>
+        <div className="ngd-card">
+          <div className="ngd-avatar-row">
+            <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
+            <div>
+              <div className="ngd-avatar-name">{profile.prenom} {profile.nom}</div>
+              <div className="ngd-avatar-meta">{profile.poste_principal} · {profile.club_actuel}</div>
+              <div className="ngd-avatar-meta2">{profile.region} · {profile.age} ans</div>
+            </div>
           </div>
         </div>
 
-        {/* AI Description */}
-        <div className="card" style={{ marginBottom:'1rem', background:'linear-gradient(135deg, rgba(26,10,46,0.9), rgba(38,33,92,0.3))' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'10px' }}>
-            <div style={{ fontSize:'12px', color:'var(--accent)', fontWeight:'600', letterSpacing:'1px' }}>✨ DESCRIPTION IA</div>
-            <button className="btn btn-secondary btn-sm" onClick={generateAiDescription} disabled={aiLoading}>{aiLoading ? 'Génération...' : '🤖 Générer'}</button>
+        {/* IA */}
+        <div className="ngd-ai-box">
+          <div className="ngd-ai-head">
+            <div className="ngd-card-title" style={{ margin: 0 }}>Description IA</div>
+            <button className="ngd-btn ngd-btn-violet ngd-btn-sm" onClick={generateAiDescription} disabled={aiLoading}>{aiLoading ? 'Génération...' : 'Générer'}</button>
           </div>
-          {profile.ai_description ? <p style={{ fontSize:'14px', color:'var(--text2)', lineHeight:1.7 }}>{profile.ai_description}</p>
-            : <p style={{ fontSize:'13px', color:'var(--text3)', fontStyle:'italic' }}>Clique sur "Générer" pour créer une description professionnelle.</p>}
+          {profile.ai_description
+            ? <p className="ngd-ai-text">{profile.ai_description}</p>
+            : <p className="ngd-ai-empty">"Clique sur Générer pour créer une présentation professionnelle de ton profil, prête à convaincre les recruteurs."</p>}
         </div>
 
-        {/* Infos personnelles */}
-        <div className="card" style={{ marginBottom:'1rem' }}>
-          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>👤 Informations personnelles</h2>
+        {/* Infos perso */}
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations personnelles</div>
           {editing ? (
-            <div style={S.grid}>
-              <div style={S.fg}><label style={S.label}>Prénom</label><input style={S.input} value={form.prenom||''} onChange={set('prenom')} /></div>
-              <div style={S.fg}><label style={S.label}>Nom</label><input style={S.input} value={form.nom||''} onChange={set('nom')} /></div>
-              <div style={S.fg}><label style={S.label}>Date de naissance</label><input style={S.input} type="date" value={form.date_naissance||''} onChange={set('date_naissance')} /></div>
-              <div style={S.fg}><label style={S.label}>Nationalité</label><input style={S.input} value={form.nationalite||''} onChange={set('nationalite')} /></div>
-              <div style={S.fg}><label style={S.label}>Région</label><select style={S.input} value={form.region||''} onChange={set('region')}><option value="">Choisir...</option>{REGIONS.map(o=><option key={o}>{o}</option>)}</select></div>
-              <div style={S.fg}><label style={S.label}>Ville</label><input style={S.input} value={form.ville||''} onChange={set('ville')} /></div>
-              <div style={S.fg}><label style={S.label}>Taille (cm)</label><input style={S.input} type="number" value={form.taille||''} onChange={set('taille')} /></div>
-              <div style={S.fg}><label style={S.label}>Poids (kg)</label><input style={S.input} type="number" value={form.poids||''} onChange={set('poids')} /></div>
-              <div style={S.fg}><label style={S.label}>WhatsApp</label><input style={S.input} value={form.whatsapp||''} onChange={set('whatsapp')} /></div>
-              <div style={S.fg}><label style={S.label}>Instagram</label><input style={S.input} value={form.instagram||''} onChange={set('instagram')} /></div>
+            <div className="ngd-grid">
+              <div className="ngd-field"><label>Prénom</label><input value={form.prenom||''} onChange={set('prenom')} /></div>
+              <div className="ngd-field"><label>Nom</label><input value={form.nom||''} onChange={set('nom')} /></div>
+              <div className="ngd-field"><label>Date de naissance</label><input type="date" value={form.date_naissance||''} onChange={set('date_naissance')} /></div>
+              <div className="ngd-field"><label>Nationalité</label><input value={form.nationalite||''} onChange={set('nationalite')} /></div>
+              <div className="ngd-field"><label>Région</label><select value={form.region||''} onChange={set('region')}><option value="">Choisir...</option>{REGIONS.map(o=><option key={o}>{o}</option>)}</select></div>
+              <div className="ngd-field"><label>Ville</label><input value={form.ville||''} onChange={set('ville')} /></div>
+              <div className="ngd-field"><label>Taille (cm)</label><input type="number" value={form.taille||''} onChange={set('taille')} /></div>
+              <div className="ngd-field"><label>Poids (kg)</label><input type="number" value={form.poids||''} onChange={set('poids')} /></div>
+              <div className="ngd-field"><label>WhatsApp</label><input value={form.whatsapp||''} onChange={set('whatsapp')} /></div>
+              <div className="ngd-field"><label>Instagram</label><input value={form.instagram||''} onChange={set('instagram')} /></div>
             </div>
           ) : (
-            <div style={S.grid}>
-              {[['Prénom',profile.prenom],['Nom',profile.nom],['Âge',profile.age?`${profile.age} ans`:'-'],
-                ['Nationalité',profile.nationalite||'-'],['Ville',profile.ville||'-'],['Région',profile.region||'-'],
-                ['Taille',profile.taille?`${profile.taille} cm`:'-'],['Poids',profile.poids?`${profile.poids} kg`:'-'],
-                ['WhatsApp',profile.whatsapp||'-'],['Instagram',profile.instagram||'-']
+            <div className="ngd-grid">
+              {[['Prénom',profile.prenom],['Nom',profile.nom],['Âge',profile.age?`${profile.age} ans`:'—'],
+                ['Nationalité',profile.nationalite||'—'],['Ville',profile.ville||'—'],['Région',profile.region||'—'],
+                ['Taille',profile.taille?`${profile.taille} cm`:'—'],['Poids',profile.poids?`${profile.poids} kg`:'—'],
+                ['WhatsApp',profile.whatsapp||'—'],['Instagram',profile.instagram||'—']
               ].map(([k,v])=>(
-                <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
-                  <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
-                  <div style={{ fontWeight:'500', color:'var(--text)' }}>{v}</div>
-                </div>
+                <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
               ))}
             </div>
           )}
         </div>
 
         {/* Infos sportives */}
-        <div className="card" style={{ marginBottom:'1rem' }}>
-          <h2 style={{ fontSize:'1rem', fontWeight:'600', color:'var(--text)', marginBottom:'1rem' }}>⚽ Informations sportives</h2>
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations sportives</div>
           {editing ? (
-            <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
-              <div style={S.grid}>
-                <div style={S.fg}><label style={S.label}>Pied fort</label><select style={S.input} value={form.pied_fort||''} onChange={set('pied_fort')}><option>Droit</option><option>Gauche</option><option>Les deux</option></select></div>
-                <div style={S.fg}><label style={S.label}>Poste principal</label><select style={S.input} value={form.poste_principal||''} onChange={set('poste_principal')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
-                <div style={S.fg}><label style={S.label}>Poste secondaire</label><select style={S.input} value={form.poste_secondaire||''} onChange={set('poste_secondaire')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
-                <div style={S.fg}><label style={S.label}>Club actuel</label><input style={S.input} value={form.club_actuel||''} onChange={set('club_actuel')} /></div>
-                <div style={S.fg}><label style={S.label}>Catégorie</label><select style={S.input} value={form.categorie||''} onChange={set('categorie')}><option value="">Choisir...</option>{CATEGORIES.map(o=><option key={o}>{o}</option>)}</select></div>
-                <div style={S.fg}><label style={S.label}>Niveau</label><select style={S.input} value={form.niveau_championnat||''} onChange={set('niveau_championnat')}><option value="">Choisir...</option>{NIVEAUX.map(o=><option key={o}>{o}</option>)}</select></div>
-                <div style={S.fg}><label style={S.label}>Matchs joués</label><input style={S.input} type="number" value={form.matchs_joues||''} onChange={set('matchs_joues')} /></div>
-                <div style={S.fg}><label style={S.label}>Buts</label><input style={S.input} type="number" value={form.buts||''} onChange={set('buts')} /></div>
-                <div style={S.fg}><label style={S.label}>Passes décisives</label><input style={S.input} type="number" value={form.passes_decisives||''} onChange={set('passes_decisives')} /></div>
-                <div style={S.fg}><label style={S.label}>Clean sheets</label><input style={S.input} type="number" value={form.clean_sheets||''} onChange={set('clean_sheets')} /></div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="ngd-grid">
+                <div className="ngd-field"><label>Pied fort</label><select value={form.pied_fort||''} onChange={set('pied_fort')}><option>Droit</option><option>Gauche</option><option>Les deux</option></select></div>
+                <div className="ngd-field"><label>Poste principal</label><select value={form.poste_principal||''} onChange={set('poste_principal')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Poste secondaire</label><select value={form.poste_secondaire||''} onChange={set('poste_secondaire')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Club actuel</label><input value={form.club_actuel||''} onChange={set('club_actuel')} /></div>
+                <div className="ngd-field"><label>Catégorie</label><select value={form.categorie||''} onChange={set('categorie')}><option value="">Choisir...</option>{CATEGORIES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Niveau</label><select value={form.niveau_championnat||''} onChange={set('niveau_championnat')}><option value="">Choisir...</option>{NIVEAUX.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Matchs joués</label><input type="number" value={form.matchs_joues||''} onChange={set('matchs_joues')} /></div>
+                <div className="ngd-field"><label>Buts</label><input type="number" value={form.buts||''} onChange={set('buts')} /></div>
+                <div className="ngd-field"><label>Passes décisives</label><input type="number" value={form.passes_decisives||''} onChange={set('passes_decisives')} /></div>
+                <div className="ngd-field"><label>Clean sheets</label><input type="number" value={form.clean_sheets||''} onChange={set('clean_sheets')} /></div>
               </div>
-              <div style={S.fg}><label style={S.label}>Vidéo highlights</label><input style={S.input} value={form.video_highlights||''} onChange={set('video_highlights')} placeholder="https://..." /></div>
-              <div style={S.fg}><label style={S.label}>Vidéo match complet</label><input style={S.input} value={form.video_match||''} onChange={set('video_match')} placeholder="https://..." /></div>
-              <div style={S.fg}>
-                <label style={S.label}>Objectif sportif</label>
-                <select style={S.input} value={form.objectif||''} onChange={set('objectif')}>
+              <div className="ngd-field"><label>Vidéo highlights</label><input value={form.video_highlights||''} onChange={set('video_highlights')} placeholder="https://..." /></div>
+              <div className="ngd-field"><label>Vidéo match complet</label><input value={form.video_match||''} onChange={set('video_match')} placeholder="https://..." /></div>
+              <div className="ngd-field"><label>Objectif sportif</label>
+                <select value={form.objectif||''} onChange={set('objectif')}>
                   <option value="">Choisir...</option>
                   <option>Monter de division</option>
                   <option>Rejoindre un club professionnel</option>
@@ -203,40 +184,37 @@ export default function MyProfile({ user }) {
                   <option>Rejoindre un club amateur ambitieux</option>
                 </select>
               </div>
-              <label style={{ display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'14px', color:'var(--text2)' }}>
+              <label className="ngd-check">
                 <input type="checkbox" checked={form.ouvert_opportunites||false} onChange={e => setForm(f => ({ ...f, ouvert_opportunites: e.target.checked }))} />
                 Ouvert(e) à des opportunités dans d'autres régions / pays
               </label>
             </div>
           ) : (
             <>
-              <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginBottom:'1rem' }}>
-                <span className="badge badge-purple">{profile.poste_principal}</span>
-                {profile.poste_secondaire && <span className="badge badge-blue">{profile.poste_secondaire}</span>}
-                <span className="badge badge-green">{profile.categorie}</span>
-                <span className="badge badge-amber">{profile.niveau_championnat}</span>
-                <span className="badge badge-pink">Pied {profile.pied_fort}</span>
+              <div className="ngd-badges" style={{ marginBottom: 16 }}>
+                <span className="ngd-badge ngd-badge-violet">{profile.poste_principal}</span>
+                {profile.poste_secondaire && <span className="ngd-badge ngd-badge-white">{profile.poste_secondaire}</span>}
+                <span className="ngd-badge ngd-badge-white">{profile.categorie}</span>
+                <span className="ngd-badge ngd-badge-white">{profile.niveau_championnat}</span>
+                <span className="ngd-badge ngd-badge-white">Pied {profile.pied_fort}</span>
               </div>
-              <div className="stat-row" style={{ marginBottom:'1rem' }}>
+              <div className="ngd-stats">
                 {[['Matchs',profile.matchs_joues??0],['Buts',profile.buts??0],['Passes D.',profile.passes_decisives??0],['Clean sheets',profile.clean_sheets??0]].map(([l,n])=>(
-                  <div key={l} className="stat-card"><div className="num">{n}</div><div className="lbl">{l}</div></div>
+                  <div key={l} className="ngd-stat"><div className="ngd-stat-val">{n}</div><div className="ngd-stat-lbl">{l}</div></div>
                 ))}
               </div>
-              <div style={S.grid}>
-                {[['Club actuel',profile.club_actuel||'-'],['Objectif',profile.objectif||'-']].map(([k,v])=>(
-                  <div key={k} style={{ background:'rgba(255,255,255,0.03)', padding:'10px', borderRadius:'8px' }}>
-                    <div style={{ fontSize:'11px', color:'var(--text3)', marginBottom:'3px' }}>{k}</div>
-                    <div style={{ fontWeight:'500', color:'var(--text)', fontSize:'14px' }}>{v}</div>
-                  </div>
+              <div className="ngd-grid">
+                {[['Club actuel',profile.club_actuel||'—'],['Objectif',profile.objectif||'—']].map(([k,v])=>(
+                  <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
                 ))}
               </div>
-              {(profile.video_highlights||profile.video_match) && (
-                <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'1rem' }}>
-                  {profile.video_highlights && <a href={profile.video_highlights} target="_blank" rel="noreferrer" className="video-link">🎬 Highlights</a>}
-                  {profile.video_match && <a href={profile.video_match} target="_blank" rel="noreferrer" className="video-link">📹 Match complet</a>}
+              {(profile.video_highlights || profile.video_match) && (
+                <div className="ngd-videos">
+                  {profile.video_highlights && <a href={profile.video_highlights} target="_blank" rel="noreferrer" className="ngd-video-link">Highlights</a>}
+                  {profile.video_match && <a href={profile.video_match} target="_blank" rel="noreferrer" className="ngd-video-link">Match complet</a>}
                 </div>
               )}
-              {profile.ouvert_opportunites && <div style={{ marginTop:'10px' }}><span className="badge badge-green">✓ Ouvert à d'autres régions / pays</span></div>}
+              {profile.ouvert_opportunites && <div style={{ marginTop: 14 }}><span className="ngd-badge ngd-badge-green">Ouvert à d'autres régions / pays</span></div>}
             </>
           )}
         </div>
