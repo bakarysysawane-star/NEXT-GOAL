@@ -1,0 +1,28 @@
+/* ============ NEXT GOAL — Connexion ============ */
+.ngl-auth { min-height: 100vh; background: #080808; color: #fff; font-family: 'Barlow', sans-serif; display: flex; align-items: center; justify-content: center; padding: 2rem; position: relative; }
+.ngl-auth::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #B87FFF; }
+.ngl-auth-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(184,127,255,0.08) 0%, transparent 55%); pointer-events: none; }
+
+.ngl-auth-box { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+.ngl-auth-head { text-align: center; margin-bottom: 2rem; }
+.ngl-auth-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 4px; color: #B87FFF; text-shadow: 0 0 24px rgba(184,127,255,0.45); text-decoration: none; }
+.ngl-auth-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 1px; color: #fff; margin-top: 20px; line-height: 1; }
+.ngl-auth-sub { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 8px; font-style: italic; }
+
+.ngl-auth-card { background: #0D0D0D; border: 1px solid #1a1a1a; border-radius: 12px; padding: 32px; }
+.ngl-auth-form { display: flex; flex-direction: column; gap: 18px; }
+.ngl-auth-field { display: flex; flex-direction: column; gap: 7px; }
+.ngl-auth-field label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.ngl-auth-field input { background: #111; border: 1px solid #222; color: rgba(255,255,255,0.8); padding: 13px 15px; border-radius: 6px; font-family: 'Barlow', sans-serif; font-size: 14px; outline: none; transition: border-color 0.18s; }
+.ngl-auth-field input:focus { border-color: #B87FFF; }
+.ngl-auth-field input::placeholder { color: rgba(255,255,255,0.2); }
+
+.ngl-auth-btn { background: #fff; border: 2px solid #fff; color: #080808; padding: 14px; border-radius: 6px; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.18s; margin-top: 6px; }
+.ngl-auth-btn:hover { background: transparent; color: #fff; }
+.ngl-auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ngl-auth-error { background: rgba(239,83,80,0.1); border: 1px solid rgba(239,83,80,0.3); color: #ef5350; padding: 12px 16px; border-radius: 6px; font-size: 13px; }
+
+.ngl-auth-divider { height: 1px; background: #1a1a1a; margin: 24px 0; }
+.ngl-auth-foot { text-align: center; font-size: 13px; color: rgba(255,255,255,0.3); }
+.ngl-auth-foot a { color: #B87FFF; text-decoration: none; font-weight: 700; }
