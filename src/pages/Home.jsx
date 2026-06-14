@@ -1,153 +1,187 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import './Home.css'
 
 export default function Home() {
+  const navigate = useNavigate()
+
   return (
-    <div className="fade-in">
-      {/* Hero */}
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '2rem',
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.12) 0%, transparent 70%)',
-        position: 'relative',
-      }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <span className="logo-text" style={{ fontSize: 'clamp(18px, 4vw, 28px)', lineHeight: 2 }}>
-            NEXT GOAL
-          </span>
-        </div>
+    <div className="ngl fade-in">
 
-        <h1 style={{
-          fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-          fontWeight: '600',
-          color: 'var(--text)',
-          lineHeight: 1.2,
-          marginBottom: '1.5rem',
-          maxWidth: '700px',
-        }}>
-          Mettre en lumière les futures cracks
-        </h1>
-
-        <p style={{
-          fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-          color: 'var(--text2)',
-          maxWidth: '560px',
-          lineHeight: 1.7,
-          marginBottom: '3rem',
-        }}>
-          La plateforme qui connecte les joueurs amateurs de toute la <strong style={{ color: 'var(--text)' }}>France</strong> avec les recruteurs et agents à la recherche des pépites de demain.
+      {/* HERO */}
+      <section className="ngl-hero">
+        <div className="ngl-eyebrow">Plateforme de détection — Football amateur</div>
+        <h1>T'as le niveau.<br /><em>Fais-toi voir.</em></h1>
+        <p className="ngl-hero-sub">
+          "Les meilleurs talents restent invisibles parce qu'ils jouent au mauvais endroit. Next Goal change ça."
         </p>
-
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '4rem' }}>
-          <Link to="/inscription/joueur" className="btn btn-primary" style={{ padding: '14px 32px', fontSize: '15px' }}>
-            ⚽ Je suis joueur
-          </Link>
-          <Link to="/inscription/pro" className="btn btn-secondary" style={{ padding: '14px 32px', fontSize: '15px' }}>
-            🎯 Je suis recruteur / agent / club
-          </Link>
+        <div className="ngl-hero-actions">
+          <Link to="/inscription/joueur" className="ngl-btn-main">Créer mon profil joueur</Link>
+          <Link to="/inscription/pro" className="ngl-btn-ghost">Je recrute des joueurs</Link>
         </div>
-
-        <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {[
-            { num: '100%', label: 'Gratuit' },
-            { num: '🇫🇷', label: 'Toute la France' },
-            { num: 'IA', label: 'Matching intelligent' },
-          ].map(s => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.8rem', fontWeight: '700', color: 'var(--accent)' }}>{s.num}</div>
-              <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '4px' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '8px' }}>Découvrir</div>
-          <div style={{ width: '1px', height: '40px', background: 'var(--border)', margin: '0 auto' }} />
-        </div>
-      </div>
-
-      {/* How it works */}
-      <div className="container" style={{ padding: '5rem 1.5rem' }}>
-        <h2 style={{ textAlign: 'center', fontSize: '2rem', fontWeight: '600', marginBottom: '3rem', color: 'var(--text)' }}>
-          Comment ça marche ?
-        </h2>
-        <div className="grid-3">
-          {[
-            { icon: '📝', step: '01', title: 'Inscris-toi', desc: 'Crée ton profil gratuitement avec tes infos, stats et vidéos depuis toute la France.' },
-            { icon: '👁', step: '02', title: 'Sois visible', desc: 'Ton profil est consulté par les recruteurs et agents partout en France.' },
-            { icon: '🎯', step: '03', title: 'Sois recruté', desc: 'Un recruteur te contacte et tu passes au niveau supérieur.' },
-          ].map(s => (
-            <div key={s.step} className="card" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{s.icon}</div>
-              <div style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: '600', letterSpacing: '2px', marginBottom: '8px' }}>
-                ÉTAPE {s.step}
-              </div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px', color: 'var(--text)' }}>{s.title}</h3>
-              <p style={{ fontSize: '14px', color: 'var(--text2)', lineHeight: 1.6 }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Regions */}
-      <div style={{ background: 'var(--bg2)', padding: '4rem 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="container">
-          <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: '600', marginBottom: '2rem', color: 'var(--text)' }}>
-            Couvre toute la France
-          </h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-            {['Île-de-France', 'PACA', 'Occitanie', 'Auvergne-Rhône-Alpes', 'Nouvelle-Aquitaine',
-              'Hauts-de-France', 'Grand Est', 'Normandie', 'Bretagne', 'Pays de la Loire',
-              'Centre-Val de Loire', 'Bourgogne-Franche-Comté', 'Corse'].map(r => (
-              <span key={r} style={{
-                padding: '5px 14px',
-                border: '1px solid var(--border)',
-                borderRadius: '20px',
-                fontSize: '12px',
-                color: 'var(--text2)',
-              }}>{r}</span>
-            ))}
+        <div className="ngl-numbers">
+          <div>
+            <div className="ngl-num-val">100%</div>
+            <div className="ngl-num-label">Gratuit</div>
+          </div>
+          <div>
+            <div className="ngl-num-val">FR</div>
+            <div className="ngl-num-label">Toute la France</div>
+          </div>
+          <div>
+            <div className="ngl-num-val">IA</div>
+            <div className="ngl-num-label">Matching intelligent</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Final CTA */}
-      <div className="container" style={{ padding: '5rem 1.5rem', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text)' }}>
-          Prêt à franchir le cap ?
-        </h2>
-        <p style={{ color: 'var(--text2)', marginBottom: '2rem' }}>
-          Rejoins la communauté Next Goal et donne-toi les moyens d'être repéré.
-        </p>
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/inscription/joueur" className="btn btn-primary" style={{ padding: '14px 32px' }}>
-            Créer mon profil joueur
-          </Link>
-          <Link to="/connexion" className="btn btn-secondary" style={{ padding: '14px 32px' }}>
-            Se connecter
-          </Link>
+      {/* MANIFESTO */}
+      <section className="ngl-manifesto">
+        <div className="ngl-label">Le constat</div>
+        <div className="ngl-manifesto-text">
+          Des milliers de joueurs talentueux <em>restent dans l'ombre</em> — non pas par manque de niveau, mais par manque de visibilité.
         </div>
-      </div>
+      </section>
 
-      {/* Footer */}
-      <footer style={{
-        padding: '2rem',
-        borderTop: '1px solid var(--border)',
-        textAlign: 'center',
-        color: 'var(--text3)',
-        fontSize: '13px',
-      }}>
-        <span className="logo-text" style={{ fontSize: '10px' }}>NEXT GOAL</span>
-        <p style={{ marginTop: '8px' }}>
-          Contact : <a href="mailto:bakary.sy.sawane@gmail.com" style={{ color: 'var(--accent)' }}>bakary.sy.sawane@gmail.com</a>
-          {' · '}
-          <a href="https://instagram.com/next_goal_idf" style={{ color: 'var(--accent)' }}>@next_goal_idf</a>
-        </p>
+      {/* PROFILS */}
+      <section className="ngl-profiles">
+        <div className="ngl-profile-block">
+          <div className="ngl-profile-type">Profil joueur</div>
+          <div className="ngl-profile-title">Tu joues.<br />On te fait voir.</div>
+          <div className="ngl-profile-desc">"Ton profil, c'est ton CV de terrain. Remplis-le une fois. Les recruteurs le consultent en permanence."</div>
+          <div className="ngl-feature-list">
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Carte Next Goal style FIFA</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Stats saison, vidéos highlights</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Messagerie directe avec les pros</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Mode "En recherche active"</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Historique de clubs</div>
+          </div>
+        </div>
+        <div className="ngl-profile-block">
+          <div className="ngl-profile-type">Profil pro</div>
+          <div className="ngl-profile-title">Tu cherches.<br />On te trouve les profils.</div>
+          <div className="ngl-profile-desc">"Décris ce que tu veux en langage naturel. L'IA te sort les profils qui correspondent exactement."</div>
+          <div className="ngl-feature-list">
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Recherche IA en langage naturel</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Filtres avancés multi-critères</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Listes de favoris personnalisées</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Alertes profils automatiques</div>
+            <div className="ngl-feature"><span className="ngl-feature-dot"></span>Badge profil vérifié</div>
+          </div>
+        </div>
+      </section>
+
+      {/* CARTE FIFA */}
+      <section className="ngl-card-section">
+        <div>
+          <div className="ngl-label">La carte Next Goal</div>
+          <div className="ngl-card-title">Ton profil.<br />En un coup d'œil.</div>
+          <div className="ngl-card-quote">"Un recruteur a 10 secondes pour regarder un profil. Ta carte Next Goal lui donne tout — poste, niveau, catégorie, stats. Rien de plus. Rien de moins."</div>
+        </div>
+        <div className="ngl-fifa">
+          <div className="ngl-fifa-top">
+            <div className="ngl-fifa-pos">ATT</div>
+            <div className="ngl-fifa-logo">NEXT<br />GOAL</div>
+          </div>
+          <div className="ngl-fifa-photo">KD</div>
+          <div className="ngl-fifa-meta">AS Saint-Denis · U21 · R1</div>
+          <div className="ngl-fifa-name">DUPONT</div>
+          <div className="ngl-fifa-stats">
+            <div className="ngl-fifa-col">
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">24</span><span className="ngl-fifa-lbl">MJ</span></div>
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">14</span><span className="ngl-fifa-lbl">BUT</span></div>
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">7</span><span className="ngl-fifa-lbl">PAS</span></div>
+            </div>
+            <div className="ngl-fifa-sep"></div>
+            <div className="ngl-fifa-col">
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">21</span><span className="ngl-fifa-lbl">ÂGE</span></div>
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">FR</span><span className="ngl-fifa-lbl">NAT</span></div>
+              <div className="ngl-fifa-stat"><span className="ngl-fifa-val">D</span><span className="ngl-fifa-lbl">PIED</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ANNUAIRE APERCU */}
+      <section className="ngl-annuaire">
+        <div className="ngl-label">Annuaire</div>
+        <div className="ngl-annuaire-title">Les profils en recherche active</div>
+        <div className="ngl-annuaire-sub">"Ces joueurs sont prêts. À toi de jouer."</div>
+        <div className="ngl-search-bar">
+          <input className="ngl-search-input" placeholder="Ex : attaquant U19 en R1 Île-de-France, disponible immédiatement..." readOnly onClick={() => navigate('/inscription/pro')} />
+          <button className="ngl-search-btn" onClick={() => navigate('/inscription/pro')}>Recherche IA</button>
+        </div>
+        <div className="ngl-player-grid">
+          <div className="ngl-player-card">
+            <div className="ngl-player-top">
+              <div className="ngl-player-avatar">KD</div>
+              <div><div className="ngl-player-name">Karim Diallo</div><div className="ngl-player-pos">Ailier gauche · Paris</div></div>
+            </div>
+            <div className="ngl-player-stats">
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">18</div><div className="ngl-stat-mini-lbl">MJ</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">11</div><div className="ngl-stat-mini-lbl">BUT</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">6</div><div className="ngl-stat-mini-lbl">PAS</div></div>
+            </div>
+            <div className="ngl-player-tags">
+              <span className="ngl-tag ngl-tag-purple">U19</span>
+              <span className="ngl-tag ngl-tag-white">R1 IDF</span>
+              <span className="ngl-tag ngl-tag-green">Recherche active</span>
+            </div>
+          </div>
+          <div className="ngl-player-card">
+            <div className="ngl-player-top">
+              <div className="ngl-player-avatar">SM</div>
+              <div><div className="ngl-player-name">Sarah Mbaye</div><div className="ngl-player-pos">Milieu central · Lyon</div></div>
+            </div>
+            <div className="ngl-player-stats">
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">22</div><div className="ngl-stat-mini-lbl">MJ</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">5</div><div className="ngl-stat-mini-lbl">BUT</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">12</div><div className="ngl-stat-mini-lbl">PAS</div></div>
+            </div>
+            <div className="ngl-player-tags">
+              <span className="ngl-tag ngl-tag-purple">Senior F</span>
+              <span className="ngl-tag ngl-tag-white">D2F</span>
+              <span className="ngl-tag ngl-tag-green">Recherche active</span>
+            </div>
+          </div>
+          <div className="ngl-player-card">
+            <div className="ngl-player-top">
+              <div className="ngl-player-avatar">LT</div>
+              <div><div className="ngl-player-name">Lucas Traoré</div><div className="ngl-player-pos">Gardien · Marseille</div></div>
+            </div>
+            <div className="ngl-player-stats">
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">20</div><div className="ngl-stat-mini-lbl">MJ</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">14</div><div className="ngl-stat-mini-lbl">CS</div></div>
+              <div className="ngl-stat-mini"><div className="ngl-stat-mini-val">U21</div><div className="ngl-stat-mini-lbl">CAT</div></div>
+            </div>
+            <div className="ngl-player-tags">
+              <span className="ngl-tag ngl-tag-purple">U21</span>
+              <span className="ngl-tag ngl-tag-white">R2 PACA</span>
+              <span className="ngl-tag ngl-tag-green">Recherche active</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="ngl-cta">
+        <h2>Prêt à passer<br /><em>au niveau supérieur ?</em></h2>
+        <p>"Le talent ne suffit pas. Il faut être vu. C'est pour ça qu'on a créé Next Goal."</p>
+        <div className="ngl-cta-btns">
+          <Link to="/inscription/joueur" className="ngl-btn-main">Créer mon profil joueur</Link>
+          <Link to="/inscription/pro" className="ngl-btn-ghost">Je recrute des joueurs</Link>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="ngl-footer">
+        <div className="ngl-footer-logo">NEXT GOAL</div>
+        <div className="ngl-footer-links">
+          <a href="mailto:bakary.sy.sawane@gmail.com">Contact</a>
+          <a href="https://instagram.com/next_goal_idf" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://tiktok.com/@next.goal.idf" target="_blank" rel="noreferrer">TikTok</a>
+        </div>
       </footer>
+
     </div>
   )
 }
