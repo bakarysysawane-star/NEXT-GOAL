@@ -1,10 +1,32 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { signOut } from '../lib/supabase'
+import { useState, useEffect } from 'react'
+import { signOut, supabase } from '../lib/supabase'
 
 export default function Navbar({ user }) {
   const navigate = useNavigate()
   const location = useLocation()
   const role = user?.profile?.role
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // Compter les messages non lus reçus par l'utilisateur
+  useEffect(() => {
+    if (!user?.id) return
+    let active = true
+
+    const fetchUnread = async () => {
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('receiver_id', user.id)
+        .eq('is_read', false)
+      if (active) setUnreadCount(count || 0)
+    }
+
+    fetchUnread()
+    // Rafraîchir toutes les 30 secondes
+    const interval = setInterval(fetchUnread, 30000)
+    return () => { active = false; clearInterval(interval) }
+  }, [user, location.pathname])
 
   const handleSignOut = async () => {
     await signOut()
@@ -72,6 +94,8 @@ export default function Navbar({ user }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
           {links.map(link => {
             const active = location.pathname === link.to
+            const isMessages = link.to === '/messages'
+            const showDot = isMessages && unreadCount > 0
             return (
               <Link
                 key={link.to}
@@ -88,9 +112,31 @@ export default function Navbar({ user }) {
                   background: active ? 'rgba(184,127,255,0.1)' : 'transparent',
                   transition: 'all 0.2s',
                   whiteSpace: 'nowrap',
+                  position: 'relative',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
                 {link.label}
+                {showDot && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '16px',
+                    height: '16px',
+                    padding: '0 4px',
+                    borderRadius: '8px',
+                    background: '#B87FFF',
+                    color: '#fff',
+                    fontSize: '10px',
+                    fontWeight: '800',
+                    lineHeight: 1,
+                  }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </Link>
             )
           })}
