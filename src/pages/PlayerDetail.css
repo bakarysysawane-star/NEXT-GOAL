@@ -84,3 +84,12 @@
   .ngp-left { border-right: none; border-bottom: 1px solid #141414; }
   .ngp-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* VIEWERS (qui a consulté le profil) */
+.ngp-viewers { display: flex; flex-direction: column; gap: 8px; }
+.ngp-viewer { display: flex; align-items: center; gap: 12px; background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 12px 14px; }
+.ngp-viewer-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(184,127,255,0.1); border: 1px solid rgba(184,127,255,0.25); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #B87FFF; flex-shrink: 0; }
+.ngp-viewer-info { flex: 1; min-width: 0; }
+.ngp-viewer-name { font-weight: 700; font-size: 13px; color: #fff; }
+.ngp-viewer-meta { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.ngp-viewer-date { font-size: 11px; color: rgba(255,255,255,0.25); white-space: nowrap; }
