@@ -21,11 +21,19 @@ export default function Messages({ user }) {
   const fetchAll = async () => {
     setLoading(true)
     // Tous les messages où l'utilisateur est impliqué (envoyés ou reçus)
-    const { data: msgs } = await supabase
+    // On récupère les messages SANS jointure pour éviter tout blocage de permission
+    const { data: msgs, error: msgErr } = await supabase
       .from('messages')
-      .select('*, player_profiles(*)')
+      .select('*')
       .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .order('created_at', { ascending: true })
+
+    if (msgErr) {
+      console.error('Erreur chargement messages:', msgErr)
+      setAllMessages([])
+      setLoading(false)
+      return
+    }
 
     const messages = msgs || []
     setAllMessages(messages)
@@ -89,7 +97,7 @@ export default function Messages({ user }) {
       subject: null,
       content: reply.trim(),
       is_read: false,
-    }).select('*, player_profiles(*)').single()
+    }).select('*').single()
 
     if (!error && data) {
       setAllMessages(prev => [...prev, data])
