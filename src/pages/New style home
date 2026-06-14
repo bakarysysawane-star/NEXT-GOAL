@@ -1,0 +1,138 @@
+/* ============ NEXT GOAL — Landing page ============ */
+.ngl { background: #080808; color: #fff; font-family: 'Barlow', sans-serif; }
+
+/* HERO */
+.ngl-hero {
+  padding: 96px 6vw 72px;
+  border-bottom: 1px solid #141414;
+  position: relative;
+  background: radial-gradient(ellipse at 50% 0%, rgba(184,127,255,0.07) 0%, transparent 60%);
+}
+.ngl-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #B87FFF;
+}
+.ngl-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: #B87FFF; margin-bottom: 22px;
+}
+.ngl-hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 9vw, 92px); line-height: 0.92;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: #fff; margin-bottom: 28px; max-width: 720px;
+}
+.ngl-hero h1 em { color: #B87FFF; font-style: normal; }
+.ngl-hero-sub {
+  font-size: 15px; color: rgba(255,255,255,0.5);
+  line-height: 1.8; max-width: 460px;
+  margin-bottom: 40px; font-style: italic;
+  border-left: 2px solid #B87FFF; padding-left: 16px;
+}
+.ngl-hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.ngl-btn-main {
+  background: #fff; border: 2px solid #fff; color: #080808;
+  padding: 16px 36px; border-radius: 4px;
+  font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 14px;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  text-decoration: none; transition: all 0.18s;
+}
+.ngl-btn-main:hover { background: transparent; color: #fff; }
+.ngl-btn-ghost {
+  background: transparent; border: 2px solid #fff; color: #fff;
+  padding: 16px 36px; border-radius: 4px;
+  font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 14px;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  text-decoration: none; transition: all 0.18s;
+}
+.ngl-btn-ghost:hover { background: #fff; color: #080808; }
+
+.ngl-numbers { display: flex; gap: 56px; margin-top: 56px; padding-top: 40px; border-top: 1px solid #161616; flex-wrap: wrap; }
+.ngl-num-val { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: #fff; letter-spacing: 1px; line-height: 1; }
+.ngl-num-label { font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+
+/* SECTION LABEL */
+.ngl-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #B87FFF; margin-bottom: 20px; }
+
+/* MANIFESTO */
+.ngl-manifesto { padding: 64px 6vw; border-bottom: 1px solid #141414; background: #0B0B0B; }
+.ngl-manifesto-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 5vw, 38px); line-height: 1.15; color: #fff; max-width: 620px; letter-spacing: 1px; }
+.ngl-manifesto-text em { color: rgba(255,255,255,0.2); font-style: normal; }
+
+/* PROFILS */
+.ngl-profiles { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #141414; }
+.ngl-profile-block { padding: 56px 6vw; }
+.ngl-profile-block:first-child { border-right: 1px solid #141414; }
+.ngl-profile-type { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #B87FFF; margin-bottom: 16px; }
+.ngl-profile-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; color: #fff; margin-bottom: 14px; line-height: 1.1; }
+.ngl-profile-desc { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.8; margin-bottom: 24px; font-style: italic; }
+.ngl-feature-list { display: flex; flex-direction: column; gap: 10px; }
+.ngl-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 600; }
+.ngl-feature-dot { width: 4px; height: 4px; background: #B87FFF; border-radius: 50%; flex-shrink: 0; }
+
+/* CARTE FIFA */
+.ngl-card-section { padding: 64px 6vw; background: #090909; border-bottom: 1px solid #141414; display: grid; grid-template-columns: 1fr 200px; gap: 56px; align-items: center; }
+.ngl-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 1px; color: #fff; margin-bottom: 14px; line-height: 1.0; }
+.ngl-card-quote { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.8; font-style: italic; border-left: 2px solid #222; padding-left: 16px; max-width: 380px; }
+
+.ngl-fifa { width: 190px; height: 270px; background: linear-gradient(160deg, #EAC840 0%, #C8A020 45%, #A07810 100%); border-radius: 12px; padding: 14px 12px 10px; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(200,160,32,0.15); }
+.ngl-fifa-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.ngl-fifa-pos { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: rgba(0,0,0,0.6); line-height: 1; }
+.ngl-fifa-logo { font-family: 'Bebas Neue', sans-serif; font-size: 8px; color: rgba(0,0,0,0.35); letter-spacing: 2px; text-align: right; line-height: 1.1; }
+.ngl-fifa-photo { width: 84px; height: 84px; background: rgba(0,0,0,0.12); border-radius: 50%; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: rgba(0,0,0,0.3); }
+.ngl-fifa-meta { font-size: 8px; color: rgba(0,0,0,0.4); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 700; }
+.ngl-fifa-name { font-family: 'Bebas Neue', sans-serif; font-size: 19px; color: rgba(0,0,0,0.65); text-align: center; letter-spacing: 1px; border-top: 1px solid rgba(0,0,0,0.12); padding-top: 5px; margin-bottom: 8px; }
+.ngl-fifa-stats { display: grid; grid-template-columns: 1fr 1px 1fr; flex: 1; }
+.ngl-fifa-sep { background: rgba(0,0,0,0.12); }
+.ngl-fifa-col { display: flex; flex-direction: column; gap: 4px; padding: 0 6px; }
+.ngl-fifa-stat { display: flex; align-items: baseline; gap: 4px; }
+.ngl-fifa-val { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: rgba(0,0,0,0.7); min-width: 22px; }
+.ngl-fifa-lbl { font-size: 8px; color: rgba(0,0,0,0.4); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+
+/* ANNUAIRE APERCU */
+.ngl-annuaire { padding: 64px 6vw; border-bottom: 1px solid #141414; }
+.ngl-annuaire-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #fff; margin-bottom: 8px; letter-spacing: 1px; }
+.ngl-annuaire-sub { font-size: 13px; color: rgba(255,255,255,0.3); margin-bottom: 28px; font-style: italic; }
+.ngl-search-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.ngl-search-input { flex: 1; min-width: 240px; background: #111; border: 1px solid #222; color: rgba(255,255,255,0.5); padding: 14px 16px; border-radius: 4px; font-family: 'Barlow', sans-serif; font-size: 13px; outline: none; }
+.ngl-search-input::placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
+.ngl-search-btn { background: #B87FFF; border: none; color: #fff; padding: 14px 24px; border-radius: 4px; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+.ngl-player-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ngl-player-card { background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 18px; transition: border-color 0.2s; }
+.ngl-player-card:hover { border-color: rgba(184,127,255,0.35); }
+.ngl-player-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.ngl-player-avatar { width: 44px; height: 44px; background: rgba(184,127,255,0.08); border-radius: 50%; border: 1px solid rgba(184,127,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: #B87FFF; flex-shrink: 0; }
+.ngl-player-name { font-weight: 700; font-size: 14px; color: #fff; }
+.ngl-player-pos { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+.ngl-player-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+.ngl-stat-mini { background: #0D0D0D; border: 1px solid #161616; border-radius: 4px; padding: 6px 4px; text-align: center; }
+.ngl-stat-mini-val { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #fff; line-height: 1; }
+.ngl-stat-mini-lbl { font-size: 8px; color: rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; font-weight: 700; }
+.ngl-player-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.ngl-tag { font-size: 9px; padding: 3px 8px; border-radius: 3px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+.ngl-tag-purple { background: rgba(184,127,255,0.1); color: #B87FFF; border: 1px solid rgba(184,127,255,0.2); }
+.ngl-tag-white { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.07); }
+.ngl-tag-green { background: rgba(74,222,128,0.07); color: #4ade80; border: 1px solid rgba(74,222,128,0.12); display: inline-flex; align-items: center; gap: 4px; }
+.ngl-tag-green::before { content: ''; width: 4px; height: 4px; background: #4ade80; border-radius: 50%; display: inline-block; }
+
+/* CTA FINAL */
+.ngl-cta { padding: 88px 6vw; text-align: center; background: #0B0B0B; border-bottom: 1px solid #141414; }
+.ngl-cta h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 7vw, 56px); color: #fff; letter-spacing: 2px; margin-bottom: 16px; line-height: 1; }
+.ngl-cta h2 em { color: #B87FFF; font-style: normal; }
+.ngl-cta p { font-size: 14px; color: rgba(255,255,255,0.35); margin-bottom: 36px; font-style: italic; }
+.ngl-cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+/* FOOTER */
+.ngl-footer { padding: 28px 6vw; display: flex; justify-content: space-between; align-items: center; background: #060606; flex-wrap: wrap; gap: 16px; }
+.ngl-footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: rgba(255,255,255,0.18); }
+.ngl-footer-links { display: flex; gap: 24px; }
+.ngl-footer-links a { font-size: 11px; color: rgba(255,255,255,0.25); text-decoration: none; text-transform: uppercase; letter-spacing: 1px; }
+.ngl-footer-links a:hover { color: #B87FFF; }
+
+/* RESPONSIVE */
+@media (max-width: 760px) {
+  .ngl-profiles { grid-template-columns: 1fr; }
+  .ngl-profile-block:first-child { border-right: none; border-bottom: 1px solid #141414; }
+  .ngl-card-section { grid-template-columns: 1fr; gap: 32px; }
+  .ngl-fifa { margin: 0 auto; }
+  .ngl-player-grid { grid-template-columns: 1fr; }
+}
