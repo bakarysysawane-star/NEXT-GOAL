@@ -79,6 +79,23 @@ export default function MyProfile({ user }) {
     </div></div></div>
   )
 
+  // Calcul du score de complétude du profil
+  const completionItems = [
+    { label: 'Photo de profil', done: !!profile.photo_url },
+    { label: 'Informations personnelles', done: !!(profile.prenom && profile.nom && profile.ville && profile.region) },
+    { label: 'Date de naissance', done: !!profile.date_naissance },
+    { label: 'Taille et poids', done: !!(profile.taille && profile.poids) },
+    { label: 'Poste et catégorie', done: !!(profile.poste_principal && profile.categorie) },
+    { label: 'Club et niveau', done: !!(profile.club_actuel && profile.niveau_championnat) },
+    { label: 'Statistiques de la saison', done: !!(profile.matchs_joues > 0 || profile.buts > 0 || profile.passes_decisives > 0) },
+    { label: 'Au moins une vidéo', done: !!(profile.video_highlights || profile.video_match) },
+    { label: 'Objectif sportif', done: !!profile.objectif },
+    { label: 'Un moyen de contact (WhatsApp/Instagram)', done: !!(profile.whatsapp || profile.instagram) },
+  ]
+  const doneCount = completionItems.filter(i => i.done).length
+  const completionPct = Math.round((doneCount / completionItems.length) * 100)
+  const firstMissing = completionItems.find(i => !i.done)
+
   return (
     <div className="ngd fade-in">
       <div className="ngd-wrap">
@@ -112,6 +129,30 @@ export default function MyProfile({ user }) {
               <div className="ngd-avatar-meta">{profile.poste_principal} · {profile.club_actuel}</div>
               <div className="ngd-avatar-meta2">{profile.region} · {profile.age} ans</div>
             </div>
+          </div>
+        </div>
+
+        {/* Complétude du profil */}
+        <div className="ngd-card">
+          <div className="ngd-completion-top">
+            <div className="ngd-card-title" style={{ margin: 0 }}>Complétude du profil</div>
+            <div className="ngd-completion-pct" style={{ color: completionPct === 100 ? '#4ade80' : '#B87FFF' }}>{completionPct}%</div>
+          </div>
+          <div className="ngd-completion-bar-bg">
+            <div className="ngd-completion-bar" style={{ width: `${completionPct}%`, background: completionPct === 100 ? '#4ade80' : '#B87FFF' }}></div>
+          </div>
+          {completionPct === 100 ? (
+            <div className="ngd-completion-hint" style={{ color: '#4ade80' }}>Ton profil est complet. Tu mets toutes les chances de ton côté.</div>
+          ) : (
+            <div className="ngd-completion-hint">Prochaine étape : {firstMissing?.label.toLowerCase()}. Un profil complet est mieux vu par les recruteurs.</div>
+          )}
+          <div className="ngd-completion-list">
+            {completionItems.map(item => (
+              <div key={item.label} className="ngd-completion-item">
+                <span className={`ngd-completion-check ${item.done ? 'done' : 'todo'}`}>{item.done ? '✓' : ''}</span>
+                <span className={item.done ? 'ngd-completion-label-done' : 'ngd-completion-label'}>{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
