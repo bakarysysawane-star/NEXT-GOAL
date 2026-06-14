@@ -22,12 +22,45 @@ export default function MyProfile({ user }) {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({})
+  const [clubHistory, setClubHistory] = useState([])
+  const [newClub, setNewClub] = useState({ club_nom: '', annee_debut: '', annee_fin: '', niveau: '' })
+  const [addingClub, setAddingClub] = useState(false)
 
   useEffect(() => { fetchProfile() }, [user])
 
   const fetchProfile = async () => {
     const { data } = await supabase.from('player_profiles').select('*').eq('user_id', user.id).single()
     setProfile(data); setForm(data || {}); setLoading(false)
+    if (data) {
+      const { data: history } = await supabase
+        .from('club_history')
+        .select('*')
+        .eq('player_id', data.id)
+        .order('annee_debut', { ascending: false })
+      setClubHistory(history || [])
+    }
+  }
+
+  const handleAddClub = async () => {
+    if (!newClub.club_nom.trim() || !profile) return
+    setAddingClub(true)
+    const { data, error: err } = await supabase.from('club_history').insert({
+      player_id: profile.id,
+      club_nom: newClub.club_nom.trim(),
+      annee_debut: newClub.annee_debut ? parseInt(newClub.annee_debut) : null,
+      annee_fin: newClub.annee_fin ? parseInt(newClub.annee_fin) : null,
+      niveau: newClub.niveau.trim() || null,
+    }).select().single()
+    if (!err && data) {
+      setClubHistory(h => [...h, data].sort((a, b) => (b.annee_debut || 0) - (a.annee_debut || 0)))
+      setNewClub({ club_nom: '', annee_debut: '', annee_fin: '', niveau: '' })
+    }
+    setAddingClub(false)
+  }
+
+  const handleDeleteClub = async (clubId) => {
+    await supabase.from('club_history').delete().eq('id', clubId)
+    setClubHistory(h => h.filter(c => c.id !== clubId))
   }
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
@@ -258,6 +291,40 @@ export default function MyProfile({ user }) {
               {profile.ouvert_opportunites && <div style={{ marginTop: 14 }}><span className="ngd-badge ngd-badge-green">Ouvert à d'autres régions / pays</span></div>}
             </>
           )}
+        </div>
+
+        {/* Historique de clubs */}
+        <div className="ngd-card">
+          <div className="ngd-card-title">Mon parcours (historique de clubs)</div>
+
+          {clubHistory.length > 0 ? (
+            <div className="ngd-club-list">
+              {clubHistory.map(c => (
+                <div key={c.id} className="ngd-club-item">
+                  <div className="ngd-club-info">
+                    <div className="ngd-club-name">{c.club_nom}</div>
+                    <div className="ngd-club-period">
+                      {c.annee_debut || '?'} → {c.annee_fin || "aujourd'hui"}{c.niveau ? ` · ${c.niveau}` : ''}
+                    </div>
+                  </div>
+                  <button className="ngd-club-delete" onClick={() => handleDeleteClub(c.id)} title="Supprimer">✕</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="ngd-ai-empty" style={{ marginBottom: 16 }}>"Ajoute les clubs où tu as joué. Les recruteurs aiment voir ta progression."</div>
+          )}
+
+          <div className="ngd-club-form">
+            <input className="ngd-club-input" placeholder="Nom du club" value={newClub.club_nom} onChange={e => setNewClub(c => ({ ...c, club_nom: e.target.value }))} />
+            <input className="ngd-club-input ngd-club-year" type="number" placeholder="Début" value={newClub.annee_debut} onChange={e => setNewClub(c => ({ ...c, annee_debut: e.target.value }))} />
+            <input className="ngd-club-input ngd-club-year" type="number" placeholder="Fin" value={newClub.annee_fin} onChange={e => setNewClub(c => ({ ...c, annee_fin: e.target.value }))} />
+            <input className="ngd-club-input" placeholder="Niveau (optionnel)" value={newClub.niveau} onChange={e => setNewClub(c => ({ ...c, niveau: e.target.value }))} />
+            <button className="ngd-btn ngd-btn-violet ngd-btn-sm" onClick={handleAddClub} disabled={addingClub || !newClub.club_nom.trim()}>
+              {addingClub ? '...' : 'Ajouter'}
+            </button>
+          </div>
+          <div className="ngd-club-hint">Laisse la case "Fin" vide pour ton club actuel.</div>
         </div>
       </div>
     </div>
