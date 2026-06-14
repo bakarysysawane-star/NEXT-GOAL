@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import PlayerCard from '../components/PlayerCard'
 import ContactModal from '../components/ContactModal'
+import './Dashboard.css'
+import './Players.css'
 
 export default function Favorites({ user }) {
   const [favorites, setFavorites] = useState([])
@@ -21,51 +23,30 @@ export default function Favorites({ user }) {
     setLoading(false)
   }
 
-  const removeFavorite = async (playerId) => {
-    await supabase.from('favorites').delete()
-      .eq('recruiter_id', user.id)
-      .eq('player_id', playerId)
-    setFavorites(f => f.filter(fav => fav.player_id !== playerId))
-  }
-
   const players = favorites.map(f => f.player_profiles).filter(Boolean)
 
   return (
-    <div className="page fade-in">
-      <div className="container">
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--text)', marginBottom: '4px' }}>
-            ⭐ Mes favoris
-          </h1>
-          <p style={{ color: 'var(--text2)', fontSize: '14px' }}>
-            {players.length} joueur{players.length > 1 ? 's' : ''} sauvegardé{players.length > 1 ? 's' : ''}
-          </p>
+    <div className="ngd fade-in">
+      <div className="ngd-wrap-wide">
+        <div className="ngd-head">
+          <div>
+            <div className="ngd-title">Mes favoris</div>
+            <div className="ngd-sub">
+              "{players.length} joueur{players.length > 1 ? 's' : ''} que tu gardes à l'œil."
+            </div>
+          </div>
         </div>
 
         {loading ? <div className="spinner" /> :
           players.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text2)' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⭐</div>
-              <h3 style={{ color: 'var(--text)', marginBottom: '8px' }}>Aucun favori pour l'instant</h3>
-              <p style={{ fontSize: '14px' }}>Ajoutez des joueurs en cliquant sur ⭐ depuis l'annuaire.</p>
+            <div className="ngd-empty">
+              <div className="ngd-empty-title">Aucun favori pour l'instant</div>
+              <div className="ngd-empty-text">"Ajoute des joueurs depuis l'annuaire en cliquant sur l'étoile."</div>
             </div>
           ) : (
-            <div className="grid-auto">
+            <div className="nga-grid">
               {players.map(p => (
-                <div key={p.id} style={{ position: 'relative' }}>
-                  <PlayerCard player={p} isRecruiter={true} onContact={setContactPlayer} />
-                  <button
-                    onClick={() => removeFavorite(p.id)}
-                    style={{
-                      position: 'absolute', top: '10px', right: '10px',
-                      background: 'rgba(211,47,47,0.2)', border: '1px solid rgba(211,47,47,0.4)',
-                      color: '#ef5350', borderRadius: '6px', padding: '4px 8px',
-                      cursor: 'pointer', fontSize: '11px', fontFamily: 'var(--font)',
-                    }}
-                  >
-                    Retirer
-                  </button>
-                </div>
+                <PlayerCard key={p.id} player={p} isRecruiter={true} onContact={setContactPlayer} user={user} />
               ))}
             </div>
           )
