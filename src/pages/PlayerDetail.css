@@ -96,3 +96,14 @@
 .ngp-viewer-name { font-weight: 700; font-size: 13px; color: #fff; }
 .ngp-viewer-meta { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 .ngp-viewer-date { font-size: 11px; color: rgba(255,255,255,0.25); white-space: nowrap; }
+
+/* TIMELINE / Parcours de clubs */
+.ngp-timeline { display: flex; flex-direction: column; }
+.ngp-timeline-item { display: flex; gap: 16px; }
+.ngp-timeline-marker { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.ngp-timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: #2a2a2a; border: 2px solid #444; margin-top: 4px; }
+.ngp-timeline-dot.current { background: #B87FFF; border-color: #B87FFF; box-shadow: 0 0 12px rgba(184,127,255,0.5); }
+.ngp-timeline-line { width: 2px; flex: 1; background: #1f1f1f; margin: 4px 0; min-height: 24px; }
+.ngp-timeline-content { padding-bottom: 22px; }
+.ngp-timeline-club { font-weight: 700; font-size: 15px; color: #fff; }
+.ngp-timeline-period { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
