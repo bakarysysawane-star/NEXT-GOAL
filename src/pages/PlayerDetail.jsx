@@ -37,6 +37,7 @@ export default function PlayerDetail({ user }) {
   const [showContact, setShowContact] = useState(false)
   const [viewers, setViewers] = useState([])
   const [viewCount, setViewCount] = useState(0)
+  const [clubHistory, setClubHistory] = useState([])
 
   useEffect(() => {
     let cancelled = false
@@ -49,6 +50,14 @@ export default function PlayerDetail({ user }) {
       setPlayer(playerData)
       setLoading(false)
       if (!playerData) return
+
+      // Charger l'historique de clubs (trié du plus récent au plus ancien)
+      const { data: history } = await supabase
+        .from('club_history')
+        .select('*')
+        .eq('player_id', id)
+        .order('annee_debut', { ascending: false })
+      if (!cancelled) setClubHistory(history || [])
 
       const role = user?.profile?.role
       const isPro = ['recruiter', 'agent', 'club'].includes(role)
@@ -211,6 +220,29 @@ export default function PlayerDetail({ user }) {
             <div>
               <div className="ngp-label">Objectif sportif</div>
               <div className="ngp-bio">{player.ai_description || player.objectif}</div>
+            </div>
+          )}
+
+          {clubHistory.length > 0 && (
+            <div>
+              <div className="ngp-label">Parcours</div>
+              <div className="ngp-timeline">
+                {clubHistory.map((c, i) => (
+                  <div key={c.id} className="ngp-timeline-item">
+                    <div className="ngp-timeline-marker">
+                      <span className={`ngp-timeline-dot ${i === 0 ? 'current' : ''}`}></span>
+                      {i < clubHistory.length - 1 && <span className="ngp-timeline-line"></span>}
+                    </div>
+                    <div className="ngp-timeline-content">
+                      <div className="ngp-timeline-club">{c.club_nom}</div>
+                      <div className="ngp-timeline-period">
+                        {c.annee_debut || '?'} → {c.annee_fin || "aujourd'hui"}
+                        {c.niveau ? ` · ${c.niveau}` : ''}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
