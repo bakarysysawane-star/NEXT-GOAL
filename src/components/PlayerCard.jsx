@@ -2,25 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const COLORS = [
-  { bg: '#1a2e1a', text: '#4ade80' },
-  { bg: '#0c1e3a', text: '#7dd3fc' },
-  { bg: '#2a1a0a', text: '#fbbf24' },
-  { bg: '#26215C', text: '#c084fc' },
-  { bg: '#2e1a00', text: '#fb923c' },
-  { bg: '#1a0a2e', text: '#e879f9' },
-]
-
-function getColor(name) {
-  const idx = (name?.charCodeAt(0) || 0) % COLORS.length
-  return COLORS[idx]
-}
-
 export default function PlayerCard({ player, onContact, isRecruiter, user }) {
-  const color = getColor(player.nom)
   const initials = `${player.prenom?.[0] || ''}${player.nom?.[0] || ''}`.toUpperCase()
   const [isFav, setIsFav] = useState(false)
   const [favLoading, setFavLoading] = useState(false)
+  const estGardien = player.poste_principal === 'Gardien de but'
 
   useEffect(() => {
     if (!isRecruiter || !user) return
@@ -34,6 +20,7 @@ export default function PlayerCard({ player, onContact, isRecruiter, user }) {
 
   const toggleFav = async (e) => {
     e.stopPropagation()
+    e.preventDefault()
     if (!user || favLoading) return
     setFavLoading(true)
     if (isFav) {
@@ -52,107 +39,50 @@ export default function PlayerCard({ player, onContact, isRecruiter, user }) {
   }
 
   return (
-    <div className="card fade-in" style={{ cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border2)'}
-      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-    >
-      {/* Bouton favori */}
+    <div className="ngc fade-in">
+      {/* Favori */}
       {isRecruiter && (
-        <button
-          onClick={toggleFav}
-          disabled={favLoading}
-          style={{
-            position: 'absolute', top: '10px', right: '10px',
-            background: isFav ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)',
-            border: isFav ? '1px solid rgba(251,191,36,0.4)' : '1px solid var(--border)',
-            borderRadius: '6px', padding: '4px 8px',
-            cursor: 'pointer', fontSize: '14px',
-            transition: 'all 0.2s',
-          }}
-          title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-        >
-          {isFav ? '⭐' : '☆'}
+        <button className={`ngc-fav ${isFav ? 'active' : ''}`} onClick={toggleFav} disabled={favLoading}
+          title={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
+          <svg viewBox="0 0 24 24" fill={isFav ? '#B87FFF' : 'none'} stroke={isFav ? '#B87FFF' : 'rgba(255,255,255,0.4)'} strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
         </button>
       )}
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', paddingRight: isRecruiter ? '36px' : '0' }}>
-        <div style={{
-          width: '48px', height: '48px', borderRadius: '50%',
-          background: color.bg, color: color.text,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: '600', fontSize: '16px', flexShrink: 0,
-          border: `1px solid ${color.text}30`,
-        }}>
-          {player.photo_url
-            ? <img src={player.photo_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-            : initials
-          }
+      <div className="ngc-top">
+        <div className="ngc-avatar">
+          {player.photo_url ? <img src={player.photo_url} alt="" /> : initials}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text)' }}>
-            {player.prenom} {player.nom}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '2px' }}>
-            {player.age} ans · {player.club_actuel}
-          </div>
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
-            <span className="badge badge-purple">{player.poste_principal}</span>
-            {player.region && <span className="badge badge-blue">{player.region}</span>}
-          </div>
+        <div style={{ minWidth: 0 }}>
+          <div className="ngc-name">{player.prenom} {player.nom}</div>
+          <div className="ngc-pos">{player.poste_principal} · {player.age} ans{player.ville ? ` · ${player.ville}` : ''}</div>
         </div>
-      </div>
-
-      {/* Info */}
-      <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '10px' }}>
-        {player.niveau_championnat} · {player.categorie} · Pied {player.pied_fort}
       </div>
 
       {/* Stats */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(3,1fr)',
-        gap: '6px', padding: '10px 0',
-        borderTop: '1px solid var(--border)',
-        borderBottom: '1px solid var(--border)',
-        marginBottom: '12px',
-      }}>
-        {[
-          { label: 'Matchs', val: player.matchs_joues ?? '-' },
-          { label: 'Buts', val: player.buts ?? '-' },
-          { label: 'Passes', val: player.passes_decisives ?? '-' },
-        ].map(s => (
-          <div key={s.label} style={{ textAlign: 'center' }}>
-            <div style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text)' }}>{s.val}</div>
-            <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '2px' }}>{s.label}</div>
-          </div>
-        ))}
+      <div className="ngc-stats">
+        <div className="ngc-stat"><div className="ngc-stat-val">{player.matchs_joues ?? 0}</div><div className="ngc-stat-lbl">MJ</div></div>
+        {estGardien
+          ? <div className="ngc-stat"><div className="ngc-stat-val">{player.clean_sheets ?? 0}</div><div className="ngc-stat-lbl">CS</div></div>
+          : <div className="ngc-stat"><div className="ngc-stat-val">{player.buts ?? 0}</div><div className="ngc-stat-lbl">BUT</div></div>
+        }
+        <div className="ngc-stat"><div className="ngc-stat-val">{player.passes_decisives ?? 0}</div><div className="ngc-stat-lbl">PAS</div></div>
       </div>
 
-      {/* AI Description */}
-      {player.ai_description && (
-        <p style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.5', marginBottom: '12px' }}>
-          {player.ai_description.slice(0, 100)}...
-        </p>
-      )}
+      {/* Tags */}
+      <div className="ngc-tags">
+        <span className="ngc-tag ngc-tag-purple">{player.categorie}</span>
+        {player.region && <span className="ngc-tag ngc-tag-white">{player.niveau_championnat}</span>}
+        {player.ouvert_opportunites && <span className="ngc-tag ngc-tag-green">Recherche active</span>}
+      </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <Link
-          to={`/joueurs/${player.id}`}
-          className="btn btn-secondary btn-sm"
-          style={{ flex: 1, textAlign: 'center' }}
-          onClick={e => e.stopPropagation()}
-        >
-          Voir profil
-        </Link>
+      <div className="ngc-actions">
+        <Link to={`/joueurs/${player.id}`} className="ngc-btn-view" onClick={e => e.stopPropagation()}>Voir profil</Link>
         {isRecruiter && (
-          <button
-            className="btn btn-primary btn-sm"
-            style={{ flex: 1 }}
-            onClick={e => { e.stopPropagation(); onContact(player) }}
-          >
-            Contacter
-          </button>
+          <button className="ngc-btn-contact" onClick={e => { e.stopPropagation(); onContact(player) }}>Contacter</button>
         )}
       </div>
     </div>
