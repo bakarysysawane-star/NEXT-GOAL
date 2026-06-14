@@ -1,22 +1,23 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0d0520;
-  --bg2: #1a0a2e;
-  --bg3: #26215C;
-  --accent: #c084fc;
-  --accent2: #e879f9;
-  --purple: #7F77DD;
-  --text: #e2d9f3;
-  --text2: #c4b5e8;
-  --text3: #8b7aaa;
-  --border: rgba(127, 119, 221, 0.3);
-  --border2: rgba(127, 119, 221, 0.6);
-  --green: #1D9E75;
+  --bg: #080808;
+  --bg2: #111111;
+  --bg3: #0d0d0d;
+  --accent: #B87FFF;
+  --accent2: #c084fc;
+  --purple: #B87FFF;
+  --text: #ffffff;
+  --text2: rgba(255,255,255,0.55);
+  --text3: rgba(255,255,255,0.3);
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(184,127,255,0.4);
+  --green: #4ade80;
   --radius: 12px;
   --radius-sm: 8px;
-  --font: 'DM Sans', sans-serif;
-  --font-logo: 'Press Start 2P', monospace;
+  --font: 'Barlow', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-logo: 'Bebas Neue', sans-serif;
 }
 
 html { scroll-behavior: smooth; }
@@ -40,13 +41,12 @@ body {
 /* Logo */
 .logo-text {
   font-family: var(--font-logo);
-  font-size: 14px;
-  background: linear-gradient(90deg, #c084fc, #e879f9, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 1px;
-  line-height: 1.5;
+  font-size: 22px;
+  color: #B87FFF;
+  text-shadow: 0 0 24px rgba(184,127,255,0.45);
+  letter-spacing: 4px;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 /* Buttons */
