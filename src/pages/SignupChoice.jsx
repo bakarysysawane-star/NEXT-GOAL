@@ -1,78 +1,49 @@
 import { Link } from 'react-router-dom'
+import './Signup.css'
 
 export default function SignupChoice() {
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '2rem',
-      background: 'radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.08) 0%, transparent 60%)',
-    }}>
-      <div style={{ width: '100%', maxWidth: '600px', textAlign: 'center' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span className="logo-text" style={{ fontSize: '16px' }}>NEXT GOAL</span>
-        </Link>
+    <div className="ngs fade-in">
+      <div className="ngs-topbar">
+        <Link to="/" className="ngs-logo">NEXT GOAL</Link>
+        <div className="ngs-topbar-right">Déjà inscrit ? <Link to="/connexion">Connexion</Link></div>
+      </div>
 
-        <h1 style={{ fontSize: '1.8rem', fontWeight: '600', margin: '1.5rem 0 0.5rem', color: 'var(--text)' }}>
-          Rejoindre Next Goal
-        </h1>
-        <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '3rem' }}>
-          Choisis ton profil pour commencer
-        </p>
+      <div className="ngs-wrapper">
+        <div className="ngs-left">
+          <div className="ngs-eyebrow">Inscription</div>
+          <h2>Qui es-tu<br />sur le terrain ?</h2>
+          <p className="ngs-left-sub">"Choisis ton profil. Le reste, on s'en occupe."</p>
 
-        <div className="grid-2" style={{ gap: '1.5rem' }}>
-          {/* Joueur */}
-          <Link to="/inscription/joueur" style={{ textDecoration: 'none' }}>
-            <div className="card" style={{
-              textAlign: 'center', padding: '2.5rem 1.5rem',
-              transition: 'all 0.2s', cursor: 'pointer',
-              border: '1px solid var(--border)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚽</div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text)' }}>
-                Je suis joueur
-              </h2>
-              <p style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                Crée ton profil sportif et fais-toi repérer par les recruteurs et agents partout en France.
-              </p>
-              <span className="btn btn-primary" style={{ width: '100%', display: 'block' }}>
-                Créer mon profil
-              </span>
-            </div>
-          </Link>
+          <div className="ngs-type-cards">
+            <Link to="/inscription/joueur" className="ngs-type-card active">
+              <div className="ngs-type-head">
+                <div className="ngs-type-title">Joueur / Joueuse</div>
+                <span className="ngs-type-badge ngs-badge-joueur">Gratuit</span>
+              </div>
+              <div className="ngs-type-desc">Tu veux être vu des recruteurs. Crée ton profil, renseigne tes stats et laisse les pros venir à toi.</div>
+            </Link>
 
-          {/* Pro */}
-          <Link to="/inscription/pro" style={{ textDecoration: 'none' }}>
-            <div className="card" style={{
-              textAlign: 'center', padding: '2.5rem 1.5rem',
-              transition: 'all 0.2s', cursor: 'pointer',
-              border: '1px solid var(--border)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.transform = 'translateY(-4px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}
-            >
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text)' }}>
-                Je suis professionnel
-              </h2>
-              <p style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                Recruteur, agent ou club ? Accédez aux profils de joueurs motivés partout en France.
-              </p>
-              <span className="btn btn-secondary" style={{ width: '100%', display: 'block' }}>
-                Accéder aux talents
-              </span>
-            </div>
-          </Link>
+            <Link to="/inscription/pro" className="ngs-type-card">
+              <div className="ngs-type-head">
+                <div className="ngs-type-title">Recruteur / Agent / Club</div>
+                <span className="ngs-type-badge ngs-badge-pro">Pro</span>
+              </div>
+              <div className="ngs-type-desc">Tu cherches des talents. Accède à l'annuaire complet, filtre par critères et contacte directement les joueurs.</div>
+            </Link>
+          </div>
         </div>
 
-        <p style={{ marginTop: '2rem', fontSize: '14px', color: 'var(--text2)' }}>
-          Déjà inscrit ?{' '}
-          <Link to="/connexion" style={{ color: 'var(--accent)', textDecoration: 'none' }}>
-            Se connecter
-          </Link>
-        </p>
+        <div className="ngs-right">
+          <h3>Rejoindre Next Goal</h3>
+          <p className="ngs-right-sub">"Le talent ne suffit pas. Il faut être vu."</p>
+          <div className="ngs-info" style={{ lineHeight: 1.7 }}>
+            Sélectionne ton type de profil à gauche pour commencer ton inscription.
+            <br /><br />
+            Les joueurs créent un profil sportif visible des recruteurs. Les professionnels accèdent à l'annuaire des talents.
+          </div>
+          <div className="ngs-signin">Déjà un compte ? <Link to="/connexion">Se connecter</Link></div>
+        </div>
       </div>
     </div>
   )
