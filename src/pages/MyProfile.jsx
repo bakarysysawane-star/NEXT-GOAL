@@ -1,126 +1,265 @@
-/* ============ NEXT GOAL — Espaces (profils, favoris, admin) ============ */
-.ngd { min-height: 100vh; background: #080808; color: #fff; font-family: 'Barlow', sans-serif; }
-.ngd-wrap { max-width: 900px; margin: 0 auto; padding: 40px 6vw 64px; }
-.ngd-wrap-wide { max-width: 1100px; margin: 0 auto; padding: 40px 6vw 64px; }
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
+import AvatarUpload from '../components/AvatarUpload'
+import './Dashboard.css'
 
-/* Header */
-.ngd-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; padding-top: 16px; }
-.ngd-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: #fff; letter-spacing: 1px; line-height: 1; }
-.ngd-sub { font-size: 13px; color: rgba(255,255,255,0.3); margin-top: 8px; font-style: italic; }
-.ngd-head-actions { display: flex; gap: 10px; }
+const REGIONS = ['Île-de-France','PACA','Occitanie','Auvergne-Rhône-Alpes','Nouvelle-Aquitaine',
+  'Hauts-de-France','Grand Est','Normandie','Bretagne','Pays de la Loire',
+  'Centre-Val de Loire','Bourgogne-Franche-Comté','Corse']
+const POSTES = ['Gardien de but','Défenseur central','Latéral droit','Latéral gauche',
+  'Milieu défensif','Milieu central','Milieu offensif','Ailier droit','Ailier gauche','Attaquant']
+const NIVEAUX = ['National 1','National 2','National 3','Régional 1','Régional 2','Régional 3','Départemental 1','Départemental 2','Loisir']
+const CATEGORIES = ['U17','U18','U19','U21','Senior','Vétéran']
+const STATUT_BADGE = { en_attente: 'ngd-badge-amber', publie: 'ngd-badge-green', refuse: 'ngd-badge-pink' }
+const STATUT_LABEL = { en_attente: 'En attente de validation', publie: 'Profil publié', refuse: 'Refusé' }
 
-/* Boutons */
-.ngd-btn { padding: 11px 22px; border-radius: 5px; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 2px solid; transition: all 0.18s; }
-.ngd-btn-primary { background: #fff; border-color: #fff; color: #080808; }
-.ngd-btn-primary:hover { background: transparent; color: #fff; }
-.ngd-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.ngd-btn-ghost { background: transparent; border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
-.ngd-btn-ghost:hover { border-color: #fff; color: #fff; }
-.ngd-btn-violet { background: #B87FFF; border-color: #B87FFF; color: #fff; }
-.ngd-btn-violet:hover { background: transparent; color: #B87FFF; }
-.ngd-btn-green { background: #4ade80; border-color: #4ade80; color: #080808; }
-.ngd-btn-green:hover { background: transparent; color: #4ade80; }
-.ngd-btn-danger { background: transparent; border-color: rgba(239,83,80,0.5); color: #ef5350; }
-.ngd-btn-danger:hover { border-color: #ef5350; }
-.ngd-btn-sm { padding: 7px 14px; font-size: 11px; }
+export default function MyProfile({ user }) {
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [success, setSuccess] = useState('')
+  const [error, setError] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({})
 
-/* Cartes */
-.ngd-card { background: #0D0D0D; border: 1px solid #1a1a1a; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
-.ngd-card-title { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #B87FFF; margin-bottom: 18px; }
+  useEffect(() => { fetchProfile() }, [user])
 
-/* Avatar */
-.ngd-avatar-row { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.ngd-avatar-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: #fff; letter-spacing: 1px; }
-.ngd-avatar-meta { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
-.ngd-avatar-meta2 { font-size: 12px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+  const fetchProfile = async () => {
+    const { data } = await supabase.from('player_profiles').select('*').eq('user_id', user.id).single()
+    setProfile(data); setForm(data || {}); setLoading(false)
+  }
 
-/* Badges */
-.ngd-badges { display: flex; gap: 8px; flex-wrap: wrap; }
-.ngd-badge { font-size: 10px; padding: 4px 10px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-.ngd-badge-violet { background: rgba(184,127,255,0.1); color: #B87FFF; border: 1px solid rgba(184,127,255,0.2); }
-.ngd-badge-green { background: rgba(74,222,128,0.08); color: #4ade80; border: 1px solid rgba(74,222,128,0.15); }
-.ngd-badge-amber { background: rgba(245,180,80,0.08); color: #F5B450; border: 1px solid rgba(245,180,80,0.15); }
-.ngd-badge-pink { background: rgba(239,83,80,0.08); color: #ef5350; border: 1px solid rgba(239,83,80,0.15); }
-.ngd-badge-white { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.08); }
+  const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
-/* Form */
-.ngd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.ngd-field { display: flex; flex-direction: column; gap: 6px; }
-.ngd-field label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
-.ngd-field input, .ngd-field select, .ngd-field textarea { background: #111; border: 1px solid #222; color: rgba(255,255,255,0.8); padding: 11px 14px; border-radius: 5px; font-family: 'Barlow', sans-serif; font-size: 13px; outline: none; width: 100%; }
-.ngd-field input:focus, .ngd-field select:focus, .ngd-field textarea:focus { border-color: #B87FFF; }
+  const handleAvatarUpload = async (photoUrl) => {
+    await supabase.from('player_profiles').update({ photo_url: photoUrl }).eq('id', profile.id)
+    setProfile(p => ({ ...p, photo_url: photoUrl })); setForm(f => ({ ...f, photo_url: photoUrl }))
+    setSuccess('Photo mise à jour'); setTimeout(() => setSuccess(''), 3000)
+  }
 
-/* Vue lecture champ */
-.ngd-readfield { background: #111; border: 1px solid #161616; padding: 11px 14px; border-radius: 5px; }
-.ngd-readfield-label { font-size: 10px; color: rgba(255,255,255,0.25); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px; }
-.ngd-readfield-val { font-weight: 600; color: rgba(255,255,255,0.85); font-size: 14px; }
+  const handleSave = async () => {
+    setSaving(true); setError(''); setSuccess('')
+    try {
+      const age = form.date_naissance ? Math.floor((Date.now() - new Date(form.date_naissance)) / 31557600000) : form.age
+      const { error: err } = await supabase.from('player_profiles').update({ ...form, age, updated_at: new Date().toISOString() }).eq('id', profile.id)
+      if (err) throw err
+      setProfile({ ...profile, ...form, age }); setEditing(false)
+      setSuccess('Profil mis à jour'); setTimeout(() => setSuccess(''), 3000)
+    } catch (err) { setError(err.message) }
+    finally { setSaving(false) }
+  }
 
-/* Stats inline */
-.ngd-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-.ngd-stat { background: #111; border: 1px solid #1a1a1a; border-radius: 6px; padding: 16px 10px; text-align: center; }
-.ngd-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #fff; line-height: 1; }
-.ngd-stat-lbl { font-size: 9px; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 700; }
+  const generateAiDescription = async () => {
+    setAiLoading(true)
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: `Tu es un agent de football professionnel. Génère une description courte et percutante (max 120 mots) pour ce joueur, à la 3ème personne, pour attirer l'attention des recruteurs. Données: Nom: ${profile.prenom} ${profile.nom}, Poste: ${profile.poste_principal}, Âge: ${profile.age} ans, Club: ${profile.club_actuel}, Région: ${profile.region}, Niveau: ${profile.niveau_championnat}, Catégorie: ${profile.categorie}, Stats: ${profile.matchs_joues} matchs, ${profile.buts} buts, ${profile.passes_decisives} passes décisives, Pied fort: ${profile.pied_fort}, Objectif: ${profile.objectif}. Réponds UNIQUEMENT avec la description, sans titre.` }]
+        })
+      })
+      const data = await response.json()
+      const description = data.content?.[0]?.text || ''
+      await supabase.from('player_profiles').update({ ai_description: description }).eq('id', profile.id)
+      setProfile(p => ({ ...p, ai_description: description }))
+      setSuccess('Description générée'); setTimeout(() => setSuccess(''), 3000)
+    } catch (err) { setError('Erreur IA : ' + err.message) }
+    finally { setAiLoading(false) }
+  }
 
-/* Alerts */
-.ngd-alert { padding: 12px 16px; border-radius: 5px; font-size: 13px; margin-bottom: 16px; }
-.ngd-alert-success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; }
-.ngd-alert-error { background: rgba(239,83,80,0.1); border: 1px solid rgba(239,83,80,0.3); color: #ef5350; }
+  if (loading) return <div className="ngd"><div className="spinner" style={{ margin: '80px auto' }} /></div>
+  if (!profile) return (
+    <div className="ngd fade-in"><div className="ngd-wrap"><div className="ngd-empty">
+      <div className="ngd-empty-title">Profil en cours de validation</div>
+      <div className="ngd-empty-text">Ton profil sera validé sous 48h.</div>
+    </div></div></div>
+  )
 
-/* IA box */
-.ngd-ai-box { background: linear-gradient(135deg, rgba(184,127,255,0.08), rgba(184,127,255,0.02)); border: 1px solid rgba(184,127,255,0.2); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
-.ngd-ai-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.ngd-ai-text { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; font-style: italic; }
-.ngd-ai-empty { font-size: 13px; color: rgba(255,255,255,0.3); font-style: italic; }
+  // Calcul du score de complétude du profil
+  const completionItems = [
+    { label: 'Photo de profil', done: !!profile.photo_url },
+    { label: 'Informations personnelles', done: !!(profile.prenom && profile.nom && profile.ville && profile.region) },
+    { label: 'Date de naissance', done: !!profile.date_naissance },
+    { label: 'Taille et poids', done: !!(profile.taille && profile.poids) },
+    { label: 'Poste et catégorie', done: !!(profile.poste_principal && profile.categorie) },
+    { label: 'Club et niveau', done: !!(profile.club_actuel && profile.niveau_championnat) },
+    { label: 'Statistiques de la saison', done: !!(profile.matchs_joues > 0 || profile.buts > 0 || profile.passes_decisives > 0) },
+    { label: 'Au moins une vidéo', done: !!(profile.video_highlights || profile.video_match) },
+    { label: 'Objectif sportif', done: !!profile.objectif },
+    { label: 'Un moyen de contact (WhatsApp/Instagram)', done: !!(profile.whatsapp || profile.instagram) },
+  ]
+  const doneCount = completionItems.filter(i => i.done).length
+  const completionPct = Math.round((doneCount / completionItems.length) * 100)
+  const firstMissing = completionItems.find(i => !i.done)
 
-/* Video links */
-.ngd-videos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-.ngd-video-link { display: inline-flex; align-items: center; gap: 8px; background: #111; border: 1px solid #222; color: rgba(255,255,255,0.6); padding: 9px 16px; border-radius: 5px; font-size: 12px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
-.ngd-video-link:hover { border-color: rgba(184,127,255,0.4); color: #B87FFF; }
+  return (
+    <div className="ngd fade-in">
+      <div className="ngd-wrap">
+        <div className="ngd-head">
+          <div>
+            <div className="ngd-title">Mon profil joueur</div>
+            <div className="ngd-badges" style={{ marginTop: 10 }}>
+              <span className={`ngd-badge ${STATUT_BADGE[profile.statut] || 'ngd-badge-amber'}`}>{STATUT_LABEL[profile.statut] || profile.statut}</span>
+            </div>
+          </div>
+          <div className="ngd-head-actions">
+            {!editing
+              ? <button className="ngd-btn ngd-btn-primary" onClick={() => setEditing(true)}>Modifier</button>
+              : <>
+                  <button className="ngd-btn ngd-btn-ghost" onClick={() => { setEditing(false); setForm(profile) }}>Annuler</button>
+                  <button className="ngd-btn ngd-btn-violet" onClick={handleSave} disabled={saving}>{saving ? '...' : 'Sauvegarder'}</button>
+                </>
+            }
+          </div>
+        </div>
 
-/* Empty */
-.ngd-empty { text-align: center; padding: 64px 20px; }
-.ngd-empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: rgba(255,255,255,0.4); letter-spacing: 1px; margin-bottom: 8px; }
-.ngd-empty-text { font-size: 13px; color: rgba(255,255,255,0.3); font-style: italic; }
+        {success && <div className="ngd-alert ngd-alert-success">{success}</div>}
+        {error && <div className="ngd-alert ngd-alert-error">{error}</div>}
 
-/* Checkbox */
-.ngd-check { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.5); }
+        {/* Avatar */}
+        <div className="ngd-card">
+          <div className="ngd-avatar-row">
+            <AvatarUpload user={user} currentUrl={profile.photo_url} onUpload={handleAvatarUpload} />
+            <div>
+              <div className="ngd-avatar-name">{profile.prenom} {profile.nom}</div>
+              <div className="ngd-avatar-meta">{profile.poste_principal} · {profile.club_actuel}</div>
+              <div className="ngd-avatar-meta2">{profile.region} · {profile.age} ans</div>
+            </div>
+          </div>
+        </div>
 
-/* Tabs */
-.ngd-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #0D0D0D; border: 1px solid #1a1a1a; padding: 4px; border-radius: 8px; width: fit-content; flex-wrap: wrap; }
-.ngd-tab { padding: 9px 20px; border-radius: 5px; border: none; background: transparent; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-family: 'Barlow', sans-serif; transition: all 0.18s; }
-.ngd-tab.active { background: #B87FFF; color: #fff; }
+        {/* Complétude du profil */}
+        <div className="ngd-card">
+          <div className="ngd-completion-top">
+            <div className="ngd-card-title" style={{ margin: 0 }}>Complétude du profil</div>
+            <div className="ngd-completion-pct" style={{ color: completionPct === 100 ? '#4ade80' : '#B87FFF' }}>{completionPct}%</div>
+          </div>
+          <div className="ngd-completion-bar-bg">
+            <div className="ngd-completion-bar" style={{ width: `${completionPct}%`, background: completionPct === 100 ? '#4ade80' : '#B87FFF' }}></div>
+          </div>
+          {completionPct === 100 ? (
+            <div className="ngd-completion-hint" style={{ color: '#4ade80' }}>Ton profil est complet. Tu mets toutes les chances de ton côté.</div>
+          ) : (
+            <div className="ngd-completion-hint">Prochaine étape : {firstMissing?.label.toLowerCase()}. Un profil complet est mieux vu par les recruteurs.</div>
+          )}
+          <div className="ngd-completion-list">
+            {completionItems.map(item => (
+              <div key={item.label} className="ngd-completion-item">
+                <span className={`ngd-completion-check ${item.done ? 'done' : 'todo'}`}>{item.done ? '✓' : ''}</span>
+                <span className={item.done ? 'ngd-completion-label-done' : 'ngd-completion-label'}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-/* Admin stats row */
-.ngd-admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 32px; }
+        {/* IA */}
+        <div className="ngd-ai-box">
+          <div className="ngd-ai-head">
+            <div className="ngd-card-title" style={{ margin: 0 }}>Description IA</div>
+            <button className="ngd-btn ngd-btn-violet ngd-btn-sm" onClick={generateAiDescription} disabled={aiLoading}>{aiLoading ? 'Génération...' : 'Générer'}</button>
+          </div>
+          {profile.ai_description
+            ? <p className="ngd-ai-text">{profile.ai_description}</p>
+            : <p className="ngd-ai-empty">"Clique sur Générer pour créer une présentation professionnelle de ton profil, prête à convaincre les recruteurs."</p>}
+        </div>
 
-/* Admin row */
-.ngd-row { background: #0D0D0D; border: 1px solid #1a1a1a; border-radius: 8px; padding: 18px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
-.ngd-row-avatar { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; background: rgba(184,127,255,0.08); border: 1px solid rgba(184,127,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: #B87FFF; }
-.ngd-row-info { flex: 1; min-width: 200px; }
-.ngd-row-name { font-weight: 700; color: #fff; font-size: 15px; }
-.ngd-row-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-.ngd-row-meta2 { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 2px; }
-.ngd-row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        {/* Infos perso */}
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations personnelles</div>
+          {editing ? (
+            <div className="ngd-grid">
+              <div className="ngd-field"><label>Prénom</label><input value={form.prenom||''} onChange={set('prenom')} /></div>
+              <div className="ngd-field"><label>Nom</label><input value={form.nom||''} onChange={set('nom')} /></div>
+              <div className="ngd-field"><label>Date de naissance</label><input type="date" value={form.date_naissance||''} onChange={set('date_naissance')} /></div>
+              <div className="ngd-field"><label>Nationalité</label><input value={form.nationalite||''} onChange={set('nationalite')} /></div>
+              <div className="ngd-field"><label>Région</label><select value={form.region||''} onChange={set('region')}><option value="">Choisir...</option>{REGIONS.map(o=><option key={o}>{o}</option>)}</select></div>
+              <div className="ngd-field"><label>Ville</label><input value={form.ville||''} onChange={set('ville')} /></div>
+              <div className="ngd-field"><label>Taille (cm)</label><input type="number" value={form.taille||''} onChange={set('taille')} /></div>
+              <div className="ngd-field"><label>Poids (kg)</label><input type="number" value={form.poids||''} onChange={set('poids')} /></div>
+              <div className="ngd-field"><label>WhatsApp</label><input value={form.whatsapp||''} onChange={set('whatsapp')} /></div>
+              <div className="ngd-field"><label>Instagram</label><input value={form.instagram||''} onChange={set('instagram')} /></div>
+            </div>
+          ) : (
+            <div className="ngd-grid">
+              {[['Prénom',profile.prenom],['Nom',profile.nom],['Âge',profile.age?`${profile.age} ans`:'—'],
+                ['Nationalité',profile.nationalite||'—'],['Ville',profile.ville||'—'],['Région',profile.region||'—'],
+                ['Taille',profile.taille?`${profile.taille} cm`:'—'],['Poids',profile.poids?`${profile.poids} kg`:'—'],
+                ['WhatsApp',profile.whatsapp||'—'],['Instagram',profile.instagram||'—']
+              ].map(([k,v])=>(
+                <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
+              ))}
+            </div>
+          )}
+        </div>
 
-@media (max-width: 640px) {
-  .ngd-grid { grid-template-columns: 1fr; }
-  .ngd-stats { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* ===== Complétude du profil ===== */
-.ngd-completion-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.ngd-completion-pct { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; }
-.ngd-completion-bar-bg { background: #1a1a1a; border-radius: 3px; height: 6px; overflow: hidden; margin-bottom: 12px; }
-.ngd-completion-bar { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
-.ngd-completion-hint { font-size: 13px; color: rgba(255,255,255,0.45); font-style: italic; margin-bottom: 18px; }
-.ngd-completion-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.ngd-completion-item { display: flex; align-items: center; gap: 10px; }
-.ngd-completion-check { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 900; }
-.ngd-completion-check.done { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-.ngd-completion-check.todo { background: #1a1a1a; border: 1px solid #2a2a2a; }
-.ngd-completion-label { font-size: 13px; color: rgba(255,255,255,0.6); }
-.ngd-completion-label-done { font-size: 13px; color: rgba(255,255,255,0.3); text-decoration: line-through; }
-
-@media (max-width: 640px) {
-  .ngd-completion-list { grid-template-columns: 1fr; }
+        {/* Infos sportives */}
+        <div className="ngd-card">
+          <div className="ngd-card-title">Informations sportives</div>
+          {editing ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="ngd-grid">
+                <div className="ngd-field"><label>Pied fort</label><select value={form.pied_fort||''} onChange={set('pied_fort')}><option>Droit</option><option>Gauche</option><option>Les deux</option></select></div>
+                <div className="ngd-field"><label>Poste principal</label><select value={form.poste_principal||''} onChange={set('poste_principal')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Poste secondaire</label><select value={form.poste_secondaire||''} onChange={set('poste_secondaire')}><option value="">Choisir...</option>{POSTES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Club actuel</label><input value={form.club_actuel||''} onChange={set('club_actuel')} /></div>
+                <div className="ngd-field"><label>Catégorie</label><select value={form.categorie||''} onChange={set('categorie')}><option value="">Choisir...</option>{CATEGORIES.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Niveau</label><select value={form.niveau_championnat||''} onChange={set('niveau_championnat')}><option value="">Choisir...</option>{NIVEAUX.map(o=><option key={o}>{o}</option>)}</select></div>
+                <div className="ngd-field"><label>Matchs joués</label><input type="number" value={form.matchs_joues||''} onChange={set('matchs_joues')} /></div>
+                <div className="ngd-field"><label>Buts</label><input type="number" value={form.buts||''} onChange={set('buts')} /></div>
+                <div className="ngd-field"><label>Passes décisives</label><input type="number" value={form.passes_decisives||''} onChange={set('passes_decisives')} /></div>
+                <div className="ngd-field"><label>Clean sheets</label><input type="number" value={form.clean_sheets||''} onChange={set('clean_sheets')} /></div>
+              </div>
+              <div className="ngd-field"><label>Vidéo highlights</label><input value={form.video_highlights||''} onChange={set('video_highlights')} placeholder="https://..." /></div>
+              <div className="ngd-field"><label>Vidéo match complet</label><input value={form.video_match||''} onChange={set('video_match')} placeholder="https://..." /></div>
+              <div className="ngd-field"><label>Objectif sportif</label>
+                <select value={form.objectif||''} onChange={set('objectif')}>
+                  <option value="">Choisir...</option>
+                  <option>Monter de division</option>
+                  <option>Rejoindre un club professionnel</option>
+                  <option>Partir à l'étranger</option>
+                  <option>Rejoindre un centre de formation</option>
+                  <option>Rejoindre un club amateur ambitieux</option>
+                </select>
+              </div>
+              <label className="ngd-check">
+                <input type="checkbox" checked={form.ouvert_opportunites||false} onChange={e => setForm(f => ({ ...f, ouvert_opportunites: e.target.checked }))} />
+                Ouvert(e) à des opportunités dans d'autres régions / pays
+              </label>
+            </div>
+          ) : (
+            <>
+              <div className="ngd-badges" style={{ marginBottom: 16 }}>
+                <span className="ngd-badge ngd-badge-violet">{profile.poste_principal}</span>
+                {profile.poste_secondaire && <span className="ngd-badge ngd-badge-white">{profile.poste_secondaire}</span>}
+                <span className="ngd-badge ngd-badge-white">{profile.categorie}</span>
+                <span className="ngd-badge ngd-badge-white">{profile.niveau_championnat}</span>
+                <span className="ngd-badge ngd-badge-white">Pied {profile.pied_fort}</span>
+              </div>
+              <div className="ngd-stats">
+                {[['Matchs',profile.matchs_joues??0],['Buts',profile.buts??0],['Passes D.',profile.passes_decisives??0],['Clean sheets',profile.clean_sheets??0]].map(([l,n])=>(
+                  <div key={l} className="ngd-stat"><div className="ngd-stat-val">{n}</div><div className="ngd-stat-lbl">{l}</div></div>
+                ))}
+              </div>
+              <div className="ngd-grid">
+                {[['Club actuel',profile.club_actuel||'—'],['Objectif',profile.objectif||'—']].map(([k,v])=>(
+                  <div key={k} className="ngd-readfield"><div className="ngd-readfield-label">{k}</div><div className="ngd-readfield-val">{v}</div></div>
+                ))}
+              </div>
+              {(profile.video_highlights || profile.video_match) && (
+                <div className="ngd-videos">
+                  {profile.video_highlights && <a href={profile.video_highlights} target="_blank" rel="noreferrer" className="ngd-video-link">Highlights</a>}
+                  {profile.video_match && <a href={profile.video_match} target="_blank" rel="noreferrer" className="ngd-video-link">Match complet</a>}
+                </div>
+              )}
+              {profile.ouvert_opportunites && <div style={{ marginTop: 14 }}><span className="ngd-badge ngd-badge-green">Ouvert à d'autres régions / pays</span></div>}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
