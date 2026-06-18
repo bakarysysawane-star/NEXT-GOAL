@@ -23,6 +23,9 @@ export default function SignupPro() {
   const handleSubmit = async e => {
     e.preventDefault()
     if (form.password !== form.confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return }
+    if (!form.organisation.trim()) { setError('Merci d\'indiquer ton organisation, club ou agence.'); return }
+    if (!form.email_pro.trim()) { setError('Merci d\'indiquer un email professionnel pour vérifier ton profil.'); return }
+    if (!form.whatsapp.trim()) { setError('Merci d\'indiquer un numéro de téléphone / WhatsApp.'); return }
     setLoading(true); setError('')
     try {
       const data = await signUp(form.email, form.password, form.role_pro, `${form.prenom} ${form.nom}`)
@@ -106,12 +109,12 @@ export default function SignupPro() {
                 <option value="club">Club</option>
               </select>
             </div>
-            <div className="ngs-field"><label>Organisation / Club / Agence</label><input value={form.organisation} onChange={e => set('organisation', e.target.value)} placeholder="FC Nantes, Agence XYZ..." /></div>
+            <div className="ngs-field"><label>Organisation / Club / Agence *</label><input value={form.organisation} onChange={e => set('organisation', e.target.value)} placeholder="FC Nantes, Agence XYZ..." required /></div>
             <div className="ngs-row">
               <div className="ngs-field"><label>Région couverte</label><select value={form.region_couverte} onChange={e => set('region_couverte', e.target.value)}>{REGIONS.map(r => <option key={r}>{r}</option>)}</select></div>
-              <div className="ngs-field"><label>Email professionnel</label><input type="email" value={form.email_pro} onChange={e => set('email_pro', e.target.value)} placeholder="pro@email.com" /></div>
+              <div className="ngs-field"><label>Email professionnel *</label><input type="email" value={form.email_pro} onChange={e => set('email_pro', e.target.value)} placeholder="pro@email.com" required /></div>
             </div>
-            <div className="ngs-field"><label>WhatsApp</label><input value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+33 6 XX XX XX XX" /></div>
+            <div className="ngs-field"><label>Téléphone / WhatsApp *</label><input value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+33 6 XX XX XX XX" required /></div>
             <div className="ngs-field"><label>Postes recherchés</label><input value={form.postes_recherches} onChange={e => set('postes_recherches', e.target.value)} placeholder="Attaquant, Milieu offensif..." /></div>
             <div className="ngs-field"><label>Niveau de championnat ciblé</label><input value={form.niveau_cible} onChange={e => set('niveau_cible', e.target.value)} placeholder="Régional 1, National 3..." /></div>
             <div className="ngs-field"><label>Critères particuliers</label><textarea value={form.criteres} onChange={e => set('criteres', e.target.value)} placeholder="Décris tes critères de recherche..." rows={3} /></div>
