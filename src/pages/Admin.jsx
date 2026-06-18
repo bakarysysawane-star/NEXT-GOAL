@@ -150,14 +150,25 @@ export default function Admin({ user }) {
             {loading ? <div className="spinner" /> : (
               filteredPros.length === 0 ? (
                 <div className="ngd-empty"><div className="ngd-empty-text">Aucun professionnel dans cette catégorie.</div></div>
-              ) : filteredPros.map(p => (
-                <div key={p.id} className="ngd-row">
+              ) : filteredPros.map(p => {
+                const champManquant = !p.organisation || !p.email_pro || !p.whatsapp
+                const NR = (v) => v ? <span style={{ color: 'rgba(255,255,255,0.7)' }}>{v}</span> : <span style={{ color: '#ef5350', fontWeight: 700 }}>non renseigné</span>
+                return (
+                <div key={p.id} className="ngd-row" style={champManquant ? { borderColor: 'rgba(239,83,80,0.4)' } : {}}>
                   <div className="ngd-row-avatar">{p.prenom?.[0]}{p.nom?.[0]}</div>
                   <div className="ngd-row-info">
                     <div className="ngd-row-name">{p.prenom} {p.nom}</div>
-                    <div className="ngd-row-meta">{p.organisation || 'Organisation non renseignée'} · {p.region_couverte}</div>
-                    <div className="ngd-row-meta2">{p.email_pro || 'Email non renseigné'} · {p.whatsapp || 'WhatsApp non renseigné'}</div>
+                    <div className="ngd-row-meta">Organisation : {NR(p.organisation)} · {p.region_couverte}</div>
+                    <div className="ngd-row-meta2">Email : {NR(p.email_pro)}</div>
+                    <div className="ngd-row-meta2">Tél / WhatsApp : {NR(p.whatsapp)}</div>
                     {p.postes_recherches && <div className="ngd-row-meta2">Recherche : {p.postes_recherches}</div>}
+                    {p.niveau_cible && <div className="ngd-row-meta2">Niveau ciblé : {p.niveau_cible}</div>}
+                    {p.criteres && <div className="ngd-row-meta2">Critères : {p.criteres}</div>}
+                    {champManquant && (
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#ef5350', fontWeight: 700 }}>
+                        Profil incomplet — impossible à vérifier. À refuser ou à recontacter avant validation.
+                      </div>
+                    )}
                   </div>
                   <div className="ngd-badges" style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                     <span className={`ngd-badge ${ROLE_BADGE[p.role_pro] || 'ngd-badge-violet'}`}>{ROLE_LABELS[p.role_pro] || p.role_pro}</span>
@@ -169,7 +180,8 @@ export default function Admin({ user }) {
                     {p.statut !== 'en_attente' && <button className="ngd-btn ngd-btn-ghost ngd-btn-sm" disabled={updating === p.id} onClick={() => updateProStatut(p.id, 'en_attente')}>Attente</button>}
                   </div>
                 </div>
-              ))
+                )
+              })
             )}
           </>
         )}
