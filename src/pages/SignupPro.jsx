@@ -16,6 +16,7 @@ export default function SignupPro() {
     organisation: '', region_couverte: 'Toute la France',
     email_pro: '', whatsapp: '',
     postes_recherches: '', criteres: '', niveau_cible: '',
+    justificatif: '', engagement_charte: false,
   })
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -26,6 +27,8 @@ export default function SignupPro() {
     if (!form.organisation.trim()) { setError('Merci d\'indiquer ton organisation, club ou agence.'); return }
     if (!form.email_pro.trim()) { setError('Merci d\'indiquer un email professionnel pour vérifier ton profil.'); return }
     if (!form.whatsapp.trim()) { setError('Merci d\'indiquer un numéro de téléphone / WhatsApp.'); return }
+    if (!form.justificatif.trim()) { setError('Merci de fournir un justificatif de ton statut professionnel (lien vers ton club, ta licence, ton profil officiel...).'); return }
+    if (!form.engagement_charte) { setError('Tu dois accepter la charte de bonne conduite pour créer un compte professionnel.'); return }
     setLoading(true); setError('')
     try {
       const data = await signUp(form.email, form.password, form.role_pro, `${form.prenom} ${form.nom}`)
@@ -41,6 +44,8 @@ export default function SignupPro() {
           postes_recherches: form.postes_recherches,
           criteres: form.criteres,
           niveau_cible: form.niveau_cible,
+          justificatif: form.justificatif,
+          engagement_charte: form.engagement_charte,
         })
         navigate('/inscription/succes')
       }
@@ -118,6 +123,26 @@ export default function SignupPro() {
             <div className="ngs-field"><label>Postes recherchés</label><input value={form.postes_recherches} onChange={e => set('postes_recherches', e.target.value)} placeholder="Attaquant, Milieu offensif..." /></div>
             <div className="ngs-field"><label>Niveau de championnat ciblé</label><input value={form.niveau_cible} onChange={e => set('niveau_cible', e.target.value)} placeholder="Régional 1, National 3..." /></div>
             <div className="ngs-field"><label>Critères particuliers</label><textarea value={form.criteres} onChange={e => set('criteres', e.target.value)} placeholder="Décris tes critères de recherche..." rows={3} /></div>
+
+            <div className="ngs-divider"></div>
+            <div className="ngs-section-label">Vérification (obligatoire)</div>
+
+            <div className="ngs-field">
+              <label>Justificatif de ton statut professionnel *</label>
+              <input value={form.justificatif} onChange={e => set('justificatif', e.target.value)} placeholder="Lien vers ton club, ta licence, ton profil officiel, LinkedIn..." required />
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '5px', lineHeight: 1.5 }}>
+                Pour la sécurité des joueurs, notamment des mineurs, chaque professionnel est vérifié avant d'accéder à la plateforme. Fournis un lien ou une référence qui prouve ton rôle (page officielle de ton club, numéro de licence d'agent, profil professionnel...).
+              </div>
+            </div>
+
+            <label className="ngs-check" style={{ alignItems: 'flex-start', lineHeight: 1.5 }}>
+              <input type="checkbox" checked={form.engagement_charte} onChange={e => set('engagement_charte', e.target.checked)} style={{ marginTop: '3px' }} />
+              <span>Je certifie sur l'honneur que les informations fournies sont exactes et que j'exerce bien la fonction déclarée. Je m'engage à respecter la charte de bonne conduite de Next Goal, en particulier à interagir de manière strictement professionnelle et respectueuse avec les joueurs, et à ne jamais contacter un joueur mineur en dehors du cadre prévu et de la présence de son représentant légal. *</span>
+            </label>
+
+            <div className="ngs-info" style={{ marginTop: '8px' }}>
+              Ton compte sera examiné manuellement avant d'être validé. Tout manquement à la charte entraîne une exclusion immédiate et définitive.
+            </div>
 
             <div className="ngs-actions">
               <Link to="/inscription" className="ngs-btn-ghost">← Retour</Link>
