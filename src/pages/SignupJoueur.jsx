@@ -25,7 +25,16 @@ export default function SignupJoueur() {
     matchs_joues:'', buts:'', passes_decisives:'', clean_sheets:'',
     video_highlights:'', video_match:'', objectif:'', ouvert_opportunites:true,
     whatsapp:'', instagram:'', tiktok:'',
+    parent_nom:'', parent_email:'', parent_telephone:'', consentement_parental:false,
   })
+
+  // Calcule l'âge à partir de la date de naissance saisie
+  const calcAge = (dateStr) => {
+    if (!dateStr) return null
+    return Math.floor((Date.now() - new Date(dateStr)) / 31557600000)
+  }
+  const ageActuel = calcAge(form.date_naissance)
+  const estMineur = ageActuel !== null && ageActuel < 18
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
@@ -33,6 +42,17 @@ export default function SignupJoueur() {
     if (form.password !== form.confirmPassword) {
       setError('Les mots de passe ne correspondent pas.')
       return
+    }
+    // Si le joueur est mineur, le consentement parental est obligatoire
+    if (estMineur) {
+      if (!form.parent_nom.trim() || !form.parent_email.trim()) {
+        setError('Comme tu es mineur, les coordonnées de ton parent ou représentant légal sont obligatoires.')
+        return
+      }
+      if (!form.consentement_parental) {
+        setError('Comme tu es mineur, tu dois confirmer avoir l\'autorisation de ton représentant légal.')
+        return
+      }
     }
     setLoading(true)
     setError('')
@@ -59,6 +79,7 @@ export default function SignupJoueur() {
       const age = form.date_naissance
         ? Math.floor((Date.now() - new Date(form.date_naissance)) / 31557600000)
         : null
+      const mineur = age !== null && age < 18
 
       const { error: insertError } = await supabase.from('player_profiles').insert({
         user_id: data.user.id,
@@ -84,6 +105,11 @@ export default function SignupJoueur() {
         whatsapp: form.whatsapp,
         instagram: form.instagram,
         tiktok: form.tiktok,
+        est_mineur: mineur,
+        parent_nom: mineur ? form.parent_nom : null,
+        parent_email: mineur ? form.parent_email : null,
+        parent_telephone: mineur ? form.parent_telephone : null,
+        consentement_parental: mineur ? form.consentement_parental : false,
         statut: 'en_attente',
       })
 
@@ -203,6 +229,26 @@ export default function SignupJoueur() {
                   <input type="checkbox" checked={form.ouvert_opportunites} onChange={e => setForm(f => ({ ...f, ouvert_opportunites: e.target.checked }))} />
                   Ouvert(e) à des opportunités dans d'autres régions / pays
                 </label>
+
+                {estMineur && (
+                  <>
+                    <div className="ngs-divider"></div>
+                    <div className="ngs-section-label" style={{ color: '#B87FFF' }}>Autorisation parentale (obligatoire — tu es mineur)</div>
+                    <div className="ngs-info" style={{ marginBottom: '4px' }}>
+                      Comme tu as moins de 18 ans, la loi impose l'accord de ton parent ou représentant légal. Ses coordonnées permettront aussi de le tenir informé si un professionnel te contacte : sur Next Goal, aucun adulte ne peut échanger avec un mineur sans que son représentant légal soit dans la boucle.
+                    </div>
+                    <div className="ngs-row">
+                      <div className="ngs-field"><label>Nom du parent / représentant légal *</label><input value={form.parent_nom} onChange={set('parent_nom')} placeholder="Nom et prénom" /></div>
+                      <div className="ngs-field"><label>Email du parent *</label><input type="email" value={form.parent_email} onChange={set('parent_email')} placeholder="parent@email.com" /></div>
+                    </div>
+                    <div className="ngs-field"><label>Téléphone du parent (recommandé)</label><input value={form.parent_telephone} onChange={set('parent_telephone')} placeholder="+33 6 XX XX XX XX" /></div>
+                    <label className="ngs-check" style={{ alignItems: 'flex-start', lineHeight: 1.5 }}>
+                      <input type="checkbox" checked={form.consentement_parental} onChange={e => setForm(f => ({ ...f, consentement_parental: e.target.checked }))} style={{ marginTop: '3px' }} />
+                      <span>Je confirme avoir l'autorisation de mon parent ou représentant légal pour créer ce profil, et que celui-ci accepte d'être informé des échanges me concernant sur Next Goal. *</span>
+                    </label>
+                  </>
+                )}
+
                 <div className="ngs-info">En soumettant, j'accepte que mon profil soit consulté par des recruteurs et professionnels du football inscrits sur Next Goal.</div>
               </>
             )}
