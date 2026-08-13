@@ -8,17 +8,23 @@ export default function ContactModal({ player, user, onClose }) {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 
+  const estMineur = player.est_mineur || (typeof player.age === 'number' && player.age > 0 && player.age < 18)
+
   const handleSend = async e => {
     e.preventDefault()
     setSending(true); setError('')
     try {
-      // Find receiver's user_id from player_profile
+      // Pour un mineur, on préfixe le message d'une mention rappelant le cadre parental
+      const contenuFinal = estMineur
+        ? `[Échange concernant un joueur mineur — le représentant légal (${player.parent_nom || 'parent'}${player.parent_email ? `, ${player.parent_email}` : ''}) est informé de ce contact.]\n\n${message}`
+        : message
+
       const { error: err } = await supabase.from('messages').insert({
         sender_id: user.id,
         receiver_id: player.user_id,
         player_profile_id: player.id,
         subject,
-        content: message,
+        content: contenuFinal,
         is_read: false,
       })
       if (err) throw err
@@ -61,6 +67,22 @@ export default function ContactModal({ player, user, onClose }) {
             </p>
 
             {error && <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{error}</div>}
+
+            {estMineur && (
+              <div style={{
+                background: 'rgba(184,127,255,0.1)', border: '1px solid rgba(184,127,255,0.4)',
+                borderRadius: '10px', padding: '14px 16px', marginBottom: '1.25rem',
+              }}>
+                <div style={{ color: '#B87FFF', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
+                  Joueur mineur — cadre protégé
+                </div>
+                <div style={{ color: 'var(--text2)', fontSize: '12px', lineHeight: 1.6 }}>
+                  Ce joueur a moins de 18 ans. Tout contact doit rester strictement professionnel et respectueux.
+                  Son représentant légal est informé de cet échange{player.parent_nom ? ` : ${player.parent_nom}` : ''}.
+                  {player.parent_email && <><br />Contact du parent : <strong style={{ color: 'var(--text)' }}>{player.parent_email}</strong></>}
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="form-group">
