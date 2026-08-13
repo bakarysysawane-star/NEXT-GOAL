@@ -151,8 +151,9 @@ export default function Admin({ user }) {
               filteredPros.length === 0 ? (
                 <div className="ngd-empty"><div className="ngd-empty-text">Aucun professionnel dans cette catégorie.</div></div>
               ) : filteredPros.map(p => {
-                const champManquant = !p.organisation || !p.email_pro || !p.whatsapp
+                const champManquant = !p.organisation || !p.email_pro || !p.whatsapp || !p.justificatif
                 const NR = (v) => v ? <span style={{ color: 'rgba(255,255,255,0.7)' }}>{v}</span> : <span style={{ color: '#ef5350', fontWeight: 700 }}>non renseigné</span>
+                const estLien = p.justificatif && (p.justificatif.startsWith('http://') || p.justificatif.startsWith('https://'))
                 return (
                 <div key={p.id} className="ngd-row" style={champManquant ? { borderColor: 'rgba(239,83,80,0.4)' } : {}}>
                   <div className="ngd-row-avatar">{p.prenom?.[0]}{p.nom?.[0]}</div>
@@ -161,14 +162,29 @@ export default function Admin({ user }) {
                     <div className="ngd-row-meta">Organisation : {NR(p.organisation)} · {p.region_couverte}</div>
                     <div className="ngd-row-meta2">Email : {NR(p.email_pro)}</div>
                     <div className="ngd-row-meta2">Tél / WhatsApp : {NR(p.whatsapp)}</div>
+                    <div className="ngd-row-meta2">
+                      Justificatif : {p.justificatif
+                        ? (estLien
+                            ? <a href={p.justificatif} target="_blank" rel="noreferrer" style={{ color: '#B87FFF', fontWeight: 700 }}>ouvrir le lien ↗</a>
+                            : <span style={{ color: 'rgba(255,255,255,0.7)' }}>{p.justificatif}</span>)
+                        : <span style={{ color: '#ef5350', fontWeight: 700 }}>non fourni</span>}
+                    </div>
+                    <div className="ngd-row-meta2">
+                      Charte acceptée : {p.engagement_charte
+                        ? <span style={{ color: '#4ade80', fontWeight: 700 }}>oui</span>
+                        : <span style={{ color: '#ef5350', fontWeight: 700 }}>non</span>}
+                    </div>
                     {p.postes_recherches && <div className="ngd-row-meta2">Recherche : {p.postes_recherches}</div>}
                     {p.niveau_cible && <div className="ngd-row-meta2">Niveau ciblé : {p.niveau_cible}</div>}
                     {p.criteres && <div className="ngd-row-meta2">Critères : {p.criteres}</div>}
                     {champManquant && (
                       <div style={{ marginTop: 8, fontSize: 12, color: '#ef5350', fontWeight: 700 }}>
-                        Profil incomplet — impossible à vérifier. À refuser ou à recontacter avant validation.
+                        Profil incomplet ou justificatif manquant — impossible à vérifier. À refuser ou recontacter avant toute validation.
                       </div>
                     )}
+                    <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                      Avant de valider : vérifie le justificatif, et en cas de doute, contacte le pro par email ou téléphone pour confirmer son identité.
+                    </div>
                   </div>
                   <div className="ngd-badges" style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
                     <span className={`ngd-badge ${ROLE_BADGE[p.role_pro] || 'ngd-badge-violet'}`}>{ROLE_LABELS[p.role_pro] || p.role_pro}</span>
