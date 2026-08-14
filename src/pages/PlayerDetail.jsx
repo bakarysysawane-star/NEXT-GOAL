@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ContactModal from '../components/ContactModal'
+import ReportButton from '../components/ReportButton'
 import './PlayerDetail.css'
 
 // Abréviation du poste pour la carte FIFA
@@ -335,6 +336,12 @@ export default function PlayerDetail({ user }) {
           )}
         </div>
       </div>
+
+      {user && !isOwnProfile && (
+        <div style={{ textAlign: 'center', marginTop: '20px', paddingBottom: '10px' }}>
+          <ReportButton cibleType="profil" cibleId={player.id} cibleNom={`${player.prenom} ${player.nom}`} user={user} />
+        </div>
+      )}
 
       {showContact && (
         <ContactModal player={player} user={user} onClose={() => setShowContact(false)} />
