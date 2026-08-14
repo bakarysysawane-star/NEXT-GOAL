@@ -123,7 +123,11 @@ export default function PlayerDetail({ user }) {
         <div>
           <div className="ngp-name">{player.prenom} {player.nom}</div>
           <div className="ngp-meta">
-            {player.poste_principal} · {player.age} ans · {player.ville}{player.region ? `, ${player.region}` : ''}
+            {player.poste_principal} · {player.age} ans · {
+              (player.est_mineur || (player.age > 0 && player.age < 18))
+                ? (player.region || 'Région non précisée')
+                : `${player.ville || ''}${player.region ? `, ${player.region}` : ''}`
+            }
           </div>
           <div className="ngp-tags">
             <span className="ngp-tag ngp-tag-purple">{player.categorie}</span>
