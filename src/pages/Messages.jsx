@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import ReportButton from '../components/ReportButton'
 import './Messages.css'
 
 const ROLE_LABEL = {
@@ -166,10 +167,11 @@ export default function Messages({ user }) {
             <>
               <div className="ngm-chat-head">
                 <div className="ngm-chat-avatar">{getInitials(activeConv.otherId)}</div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div className="ngm-chat-name">{getName(activeConv.otherId)}</div>
                   <div className="ngm-chat-meta">{getRole(activeConv.otherId)}</div>
                 </div>
+                <ReportButton cibleType="message" cibleId={activeConv.otherId} cibleNom={getName(activeConv.otherId)} user={user} />
               </div>
 
               <div className="ngm-messages">
