@@ -57,7 +57,11 @@ export default function PlayerCard({ player, onContact, isRecruiter, user }) {
         </div>
         <div style={{ minWidth: 0 }}>
           <div className="ngc-name">{player.prenom} {player.nom}</div>
-          <div className="ngc-pos">{player.poste_principal} · {player.age} ans{player.ville ? ` · ${player.ville}` : ''}</div>
+          <div className="ngc-pos">{player.poste_principal} · {player.age} ans{
+            (player.est_mineur || (player.age > 0 && player.age < 18))
+              ? (player.region ? ` · ${player.region}` : '')
+              : (player.ville ? ` · ${player.ville}` : '')
+          }</div>
         </div>
       </div>
 
