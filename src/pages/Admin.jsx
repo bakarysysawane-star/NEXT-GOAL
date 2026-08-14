@@ -11,6 +11,7 @@ const STATUT_LABEL = { en_attente: 'En attente', publie: 'Publié', valide: 'Val
 export default function Admin({ user }) {
   const [players, setPlayers] = useState([])
   const [pros, setPros] = useState([])
+  const [signalements, setSignalements] = useState([])
   const [loading, setLoading] = useState(true)
   const [mainTab, setMainTab] = useState('joueurs')
   const [playerTab, setPlayerTab] = useState('en_attente')
@@ -39,8 +40,17 @@ export default function Admin({ user }) {
     ])
     setPlayers(playersData || [])
     setPros(prosData || [])
+    // Charger les signalements (les plus récents d'abord)
+    const { data: signalementsData } = await supabase
+      .from('signalements').select('*').order('created_at', { ascending: false })
+    setSignalements(signalementsData || [])
     setStats({ total, publie, en_attente: attente, users, pros: prosCount, pros_valides: prosValides, pros_attente: prosAttente })
     setLoading(false)
+  }
+
+  const traiterSignalement = async (id, statut) => {
+    await supabase.from('signalements').update({ statut }).eq('id', id)
+    setSignalements(s => s.map(sig => sig.id === id ? { ...sig, statut } : sig))
   }
 
   const updatePlayerStatut = async (id, statut) => {
@@ -101,7 +111,45 @@ export default function Admin({ user }) {
         <div className="ngd-tabs">
           <button className={`ngd-tab ${mainTab === 'joueurs' ? 'active' : ''}`} onClick={() => setMainTab('joueurs')}>Joueurs</button>
           <button className={`ngd-tab ${mainTab === 'pros' ? 'active' : ''}`} onClick={() => setMainTab('pros')}>Professionnels</button>
+          <button className={`ngd-tab ${mainTab === 'signalements' ? 'active' : ''}`} onClick={() => setMainTab('signalements')}>
+            Signalements{signalements.filter(s => s.statut === 'nouveau').length > 0 ? ` (${signalements.filter(s => s.statut === 'nouveau').length})` : ''}
+          </button>
         </div>
+
+        {/* SIGNALEMENTS */}
+        {mainTab === 'signalements' && (
+          <div className="ngd-list">
+            {signalements.length === 0 ? (
+              <div className="ngd-empty">Aucun signalement. Tout va bien.</div>
+            ) : signalements.map(s => {
+              const STATUT_COLOR = { nouveau: '#ef5350', traite: '#4ade80', ignore: 'rgba(255,255,255,0.4)' }
+              const STATUT_TXT = { nouveau: 'Nouveau', traite: 'Traité', ignore: 'Ignoré' }
+              return (
+                <div key={s.id} className="ngd-row" style={s.statut === 'nouveau' ? { borderColor: 'rgba(239,83,80,0.4)' } : {}}>
+                  <div className="ngd-row-info">
+                    <div className="ngd-row-name">
+                      {s.motif}
+                      <span style={{ marginLeft: 10, fontSize: 11, fontWeight: 700, color: STATUT_COLOR[s.statut] }}>
+                        {STATUT_TXT[s.statut]}
+                      </span>
+                    </div>
+                    <div className="ngd-row-meta">
+                      Type : {s.cible_type === 'profil' ? 'Profil joueur' : 'Conversation'}{s.cible_nom ? ` · ${s.cible_nom}` : ''}
+                    </div>
+                    {s.details && <div className="ngd-row-meta2" style={{ marginTop: 4 }}>« {s.details} »</div>}
+                    <div className="ngd-row-meta2" style={{ marginTop: 4, opacity: 0.6 }}>
+                      {new Date(s.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className="ngd-row-actions">
+                    {s.statut !== 'traite' && <button className="ngd-btn ngd-btn-green ngd-btn-sm" onClick={() => traiterSignalement(s.id, 'traite')}>Marquer traité</button>}
+                    {s.statut !== 'ignore' && <button className="ngd-btn ngd-btn-ghost ngd-btn-sm" onClick={() => traiterSignalement(s.id, 'ignore')}>Ignorer</button>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* JOUEURS */}
         {mainTab === 'joueurs' && (
