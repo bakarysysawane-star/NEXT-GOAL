@@ -16,6 +16,7 @@ import Admin from './pages/Admin'
 import Favorites from './pages/Favorites'
 import Recommendations from './pages/Recommendations'
 import MyProProfile from './pages/MyProProfile'
+import Legal from './pages/Legal'
 
 function RequireAuth({ user, loading, children, roles }) {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div className="spinner" /></div>
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/inscription/joueur" element={<RequireGuest user={user} loading={loading}><SignupJoueur /></RequireGuest>} />
         <Route path="/inscription/pro" element={<RequireGuest user={user} loading={loading}><SignupPro /></RequireGuest>} />
         <Route path="/inscription/succes" element={<SignupSuccess />} />
+        <Route path="/mentions-legales" element={<Legal />} />
 
         {/* Protected — all logged in */}
         <Route path="/joueurs" element={<RequireAuth user={user} loading={loading}><Players user={user} /></RequireAuth>} />
