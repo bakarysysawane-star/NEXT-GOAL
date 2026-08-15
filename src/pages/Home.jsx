@@ -177,6 +177,7 @@ export default function Home() {
       <footer className="ngl-footer">
         <div className="ngl-footer-logo">NEXT GOAL</div>
         <div className="ngl-footer-links">
+          <Link to="/mentions-legales">Mentions légales</Link>
           <a href="mailto:bakary.sy.sawane@gmail.com">Contact</a>
           <a href="https://instagram.com/next_goal_idf" target="_blank" rel="noreferrer">Instagram</a>
           <a href="https://tiktok.com/@next.goal.idf" target="_blank" rel="noreferrer">TikTok</a>
